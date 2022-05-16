@@ -10,6 +10,7 @@ namespace Console_Game
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("test commit");
         }
     }
 }
