@@ -13,6 +13,7 @@ namespace Console_Game
         private const int FieldSizeY = 25;
         static void Main(string[] args)
         {
+            Console.OutputEncoding = System.Text.Encoding.Unicode;
             InitializeField();
             InitializePlayer();
             Console.ReadKey();
@@ -21,7 +22,7 @@ namespace Console_Game
         private static void InitializePlayer()
         {
             Player player = new Player();
-            player.DrawPlayer();
+            player.AnimatePlayer();
         }
 
         private static void InitializeField()
