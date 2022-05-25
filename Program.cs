@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 
 namespace Console_Game
@@ -17,6 +18,7 @@ namespace Console_Game
             InitializeField();
             InitializePlayer();
             Console.ReadKey();
+            
         }
 
         private static void InitializePlayer()

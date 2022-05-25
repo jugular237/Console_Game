@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Threading.Tasks;
+using System.Threading;
 
 public class Player
 {
 	private const int XCoord = 45;
-	private const int YCoord = 15;
+	private const int YCoord = 20;
 
 	private int Health { get; set; }
 	private int Ammo { get; set; }
@@ -17,6 +19,7 @@ public class Player
 		none
     }
 
+	private Diresction direction;
 	public void AnimatePlayer()
     {
 		Console.SetCursorPosition(XCoord, YCoord);
@@ -26,6 +29,7 @@ public class Player
 			ConsoleKey key = keyInfo.Key;
 			if (key == ConsoleKey.W)
             {
+				direction = Diresction.up;
 				ClearSpace(XCoord - 17, YCoord);
 				DrawPlayer(XCoord-1, YCoord, XCoord , XCoord + 2, true,
 					new DrawHero
@@ -36,10 +40,12 @@ public class Player
 						BodyNGun = @"|   | /",
 						Legs = @"/ \"
 					});
-				Shooting(0,0, Diresction.up);
+				Thread thread1 = new Thread(Shooting);
+				thread1.Start();
 			}
 			else if (key == ConsoleKey.A)
             {
+				direction = Diresction.left;
 				ClearSpace(XCoord-17, YCoord);
 				DrawPlayer(XCoord-9, YCoord, XCoord - 5, XCoord+2, false,
 					new DrawHero
@@ -48,10 +54,12 @@ public class Player
 						BodyNGun = @"\\ -- |   |",
 						Legs = @"/ \"
 					});
-				Shooting(0,0,Diresction.left);
+				Thread thread2 = new Thread(Shooting);
+				thread2.Start();
 			}
             else if (key == ConsoleKey.D)
 			{
+				direction = Diresction.right;
 				ClearSpace(XCoord - 17, YCoord);
 				DrawPlayer(XCoord, YCoord, XCoord + 1, XCoord + 2, false,
 					new DrawHero
@@ -60,16 +68,47 @@ public class Player
 						BodyNGun = @"|   | -- //",
 						Legs = @"/ \"
 					});
-				Shooting(0,0, Diresction.right);
+				Thread thread3 = new Thread(Shooting);
+				thread3.Start();
 			}
 		} while (isDead == false);
         
     }
-
-	public void Shooting(int xCoord, int yCoord, Diresction direction)
+	
+	void Shooting()
     {
-		//while () ... to do
+		if(direction == Diresction.left)
+			for(int i = XCoord-10; i>0; i--)
+            {
+				Console.SetCursorPosition(i, YCoord);
+				Console.Write("-");
+				Thread.Sleep(50);
+				Console.SetCursorPosition(i, YCoord);
+				Console.Write(" ");
+				if (i == 1) Console.SetCursorPosition(XCoord, YCoord);
+			}
+		else if(direction == Diresction.right)
+			for(int i = XCoord+16; i<94; i++)
+            {
+				Console.SetCursorPosition(i, YCoord);
+				Console.Write("-");
+				Thread.Sleep(50);
+				Console.SetCursorPosition(i, YCoord);
+				Console.Write(" ");
+				if (i == 93) Console.SetCursorPosition(XCoord, YCoord);
+			}
+		else if(direction == Diresction.up)
+			for(int i = YCoord-5; i>0; i--)
+            {
+				Console.SetCursorPosition(XCoord + 8, i);
+				Console.Write("|");
+				Thread.Sleep(100);
+				Console.SetCursorPosition(XCoord + 8, i);
+				Console.Write(" ");
+				if (i == 1) Console.SetCursorPosition(XCoord, YCoord);
+			}
     }
+	
 
 	private void DrawPlayer(int x1Coord, int y1Coord, int x2Coord, int x3Coord, bool hasOverHead, DrawHero drawhero)
     {
