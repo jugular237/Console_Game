@@ -12,8 +12,11 @@ namespace Console_Game
     {
         private const int FieldSizeX = 95;
         private const int FieldSizeY = 25;
+
+        public static Thread mainThread = null;
         static void Main(string[] args)
         {
+            Thread mainThread = Thread.CurrentThread;
             Console.OutputEncoding = System.Text.Encoding.Unicode;
             InitializeField();
             InitializePlayer();
