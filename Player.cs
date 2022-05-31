@@ -1,32 +1,19 @@
 ﻿using System;
 using System.Threading;
 
-public class Player
+public class Player:BasicStats
 {
     private const int XCoord = 45;
     private const int YCoord = 20;
-
-    private int Health { get; set; }
-    private int Ammo { get; set; }
-    private bool isDead { get; set; }
-
-    public enum Direction
-    {
-        none,
-        up,
-        left,
-        right,
-    }
-
+    
     private Direction direction;
-
-    Mutex mutexObj = new Mutex();
-
-    public void AnimatePlayer()
+    
+    public override void AnimateCreature()
     {
         Console.SetCursorPosition(XCoord, YCoord);
         do
         {
+            
             ConsoleKeyInfo keyInfo = Console.ReadKey();
             ConsoleKey key = keyInfo.Key;
             if (key == ConsoleKey.UpArrow)
@@ -116,15 +103,7 @@ public class Player
                 }
         }
     }
-    private void ClearSpace1(Coordinates coords)
-    {
-        Console.SetCursorPosition(coords.X1, coords.Y1);
-        Console.Write("  ");
-        Console.SetCursorPosition(coords.X2, coords.Y2);
-        Console.Write("  ");
-        Console.SetCursorPosition(coords.X3, coords.Y3);
-        Console.Write("  ");
-    }
+    
 
     private void DrawPlayer(int x1Coord, int y1Coord, int x2Coord, int x3Coord, bool hasOverHead, DrawHero drawhero)
     {
