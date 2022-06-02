@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 public abstract class BasicStats
 {
-    public int Health { get; set; }
+    
     public bool isDead { get; set; }
 
-    public int Speed { get; set; }
+    protected int Speed { get; set; }
 
     public enum Direction
     {
@@ -18,5 +18,5 @@ public abstract class BasicStats
         left,
         right,
     }
-    public abstract void AnimateCreature();
+    public abstract void DrawCreature();
 }

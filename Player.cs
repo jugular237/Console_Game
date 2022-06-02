@@ -8,9 +8,8 @@ public class Player:BasicStats
     
     public Direction direction;
     
-    public override void AnimateCreature()
+    public override void DrawCreature()
     {
-        Console.SetCursorPosition(0, 0);
         direction = ReadMovement(direction);
         if (direction == Direction.up)
         {

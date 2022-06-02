@@ -1,21 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 
 	public struct Coordinates
 	{
-		public int X1 { get; set; }
-		public int X2 { get; set; }
-		public int X3 { get; set; }
-		public int X4 { get; set; }
+	public readonly int X1;
+	public readonly int X2;
+	public readonly int X3;
+	public readonly int X4;
 
-		public int Y1 { get; set; }
-		public int Y2 { get; set; }
-		public int Y3 { get; set; }
-		public int Y4 { get; set; }
+	public readonly int Y1;
+	public readonly int Y2;
+	public readonly int Y3;
+	public readonly int Y4;
 
         public Coordinates(int x1=0, int y1 = 0, int x2=0, int y2=0,
 							int x3=0, int y3=0, int x4=0, int y4=0)

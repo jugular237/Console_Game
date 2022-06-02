@@ -12,8 +12,13 @@ namespace Console_Game
     {
         static Player player = new Player();
 
+        static Enemy1 enemy1 = new Enemy1();
+
+        static MonstersSpawns mSpawn;
+
         private const int FieldSizeX = 95;
         private const int FieldSizeY = 30;
+        private const int frameRate = 20;
 
         private const int XCoordPlayer = Player.XCoord;
         private const int YCoordPlayer = Player.YCoord;
@@ -23,7 +28,10 @@ namespace Console_Game
         private static int BulletcounterUp = 0;
 
         static bool bulletOnLeftWay, bulletOnUpWay, bulletOnRightWay;
-        
+
+        static BasicStats.Direction direction = BasicStats.Direction.up;
+
+        static int monsterRate=0;
 
         static void Main(string[] args)
         {
@@ -35,13 +43,14 @@ namespace Console_Game
 
         static void Update()
         {
-            player.AnimateCreature();
-            DrawBullet(new Coordinates(34, YCoordPlayer, 62, YCoordPlayer, XCoordPlayer+8, 20));
-            Thread.Sleep(15);
+            player.DrawCreature();
+            AnimateBullet(new Coordinates(34, YCoordPlayer, 62, YCoordPlayer, XCoordPlayer+8, 20));
+            InitializeEnemy();
+            Thread.Sleep(frameRate);
         }
 
         
-        static void DrawBullet(Coordinates coords)
+        static void AnimateBullet(Coordinates coords)
         {
             if ((player.direction == BasicStats.Direction.left || bulletOnLeftWay) && BulletcounterLeft < coords.X1)
             {
@@ -91,10 +100,20 @@ namespace Console_Game
         {
             Console.SetCursorPosition(coordx, coordy);
             Console.Write(symb);
-        }
+        }  
         static void InitializeEnemy()
         {
-            // to do...
+            if (enemy1.Health > 0)
+            {
+                if (monsterRate % 20 == 0)
+                    enemy1.AnimateEnemy(direction);
+                monsterRate++;
+                enemy1.CheckOnHit(21 - BulletcounterUp, mSpawn.YUpSpawn + enemy1.wayCounter);
+            }
+            else
+            {
+                enemy1.CleanOrWriteSymbol(mSpawn.XUpSpawn, 21 - BulletcounterUp, "               ");
+            }
         }
 
         static void InitializeField()
