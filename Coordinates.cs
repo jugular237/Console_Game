@@ -17,8 +17,8 @@ using System.Threading.Tasks;
 		public int Y3 { get; set; }
 		public int Y4 { get; set; }
 
-        public Coordinates(int x1, int x2, int x3, int x4,
-							int y1, int y2, int y3, int y4)
+        public Coordinates(int x1=0, int y1 = 0, int x2=0, int y2=0,
+							int x3=0, int y3=0, int x4=0, int y4=0)
         {
 			X1 = x1;
 			X2 = x2;
