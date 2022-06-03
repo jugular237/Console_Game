@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 public class Enemy1 : BasicStats
 {
     public int wayCounter = 0;
@@ -29,14 +30,15 @@ public class Enemy1 : BasicStats
         }
     }
 
-    private void DrawEnemy(int coordX, int coordY)
+    public void DrawEnemy(int coordX, int coordY)
     {
         CleanOrWriteSymbol(coordX, coordY, @"/╲/\╭ºo8oº╮/\╱\");
     }
 
     public void AnimateEnemy(Direction directn)
     {
-        if(directn == Direction.up && wayCounter < 19)
+
+        if(directn == Direction.up && wayCounter < 17)
         {
             DrawEnemy(monstrSp.XUpSpawn, monstrSp.YUpSpawn + wayCounter);
             CleanOrWriteSymbol(monstrSp.XUpSpawn, monstrSp.YUpSpawn + wayCounter - 1, "      |          ");
@@ -45,13 +47,16 @@ public class Enemy1 : BasicStats
         }
     }
 
-    public void CheckOnHit(int bulletCoord, int enemyCoord)
+    public bool CheckOnHit(int bulletCoord, int enemyCoord)
     {
-        if(bulletCoord == enemyCoord -1)
-        {
-            Health--;
-        }
-        
+        return bulletCoord == enemyCoord - 1;
+    }
+
+    public void GetDamaged()
+    {
+        SetColor("Red");
+        DrawEnemy(monstrSp.XUpSpawn, monstrSp.YUpSpawn + wayCounter - 1);
+        Health--;
     }
 
     public void CleanOrWriteSymbol(int coordx, int coordy, string symb)

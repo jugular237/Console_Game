@@ -13,7 +13,7 @@ public class Player:BasicStats
         direction = ReadMovement(direction);
         if (direction == Direction.up)
         {
-            ClearSpace(XCoord - 17, YCoord);
+            ClearSpace(XCoord - 9, YCoord);
             DrawPlayer(XCoord - 1, YCoord, XCoord, XCoord + 2, true,
                     new DrawHero
                     {
@@ -26,7 +26,7 @@ public class Player:BasicStats
         }
         else if (direction == Direction.left)
         {
-            ClearSpace(XCoord - 17, YCoord);
+            ClearSpace(XCoord - 9, YCoord);
             DrawPlayer(XCoord - 9, YCoord, XCoord - 5, XCoord + 2, false,
                     new DrawHero
                     {
@@ -37,7 +37,7 @@ public class Player:BasicStats
         }
         else if (direction == Direction.right)
         {
-            ClearSpace(XCoord - 17, YCoord);
+            ClearSpace(XCoord - 9, YCoord);
             DrawPlayer(XCoord, YCoord, XCoord + 1, XCoord + 2, false,
                     new DrawHero
                     {
@@ -82,13 +82,13 @@ public class Player:BasicStats
 
     private void ClearSpace(int xCoord, int yCoord)
     {
-        CleanOrWriteSymbol(xCoord, yCoord, "                                 ");
-        CleanOrWriteSymbol(xCoord, yCoord + 1, "                                ");
-        CleanOrWriteSymbol(xCoord, yCoord + 2, "                 ");
-        CleanOrWriteSymbol(xCoord, yCoord - 1, "                          ");
-        CleanOrWriteSymbol(xCoord, yCoord - 2, "                          ");
-        CleanOrWriteSymbol(xCoord, yCoord - 3, "                          ");
-        CleanOrWriteSymbol(xCoord, yCoord - 4, "                          ");
+        CleanOrWriteSymbol(xCoord, yCoord, "                         ");
+        CleanOrWriteSymbol(xCoord, yCoord + 1, "                      ");
+        CleanOrWriteSymbol(xCoord, yCoord + 2, "           ");
+        CleanOrWriteSymbol(xCoord, yCoord - 1, "                  ");
+        CleanOrWriteSymbol(xCoord, yCoord - 2, "                  ");
+        CleanOrWriteSymbol(xCoord, yCoord - 3, "                  ");
+        CleanOrWriteSymbol(xCoord, yCoord - 4, "                  ");
     }
 
 }

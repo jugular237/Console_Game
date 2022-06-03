@@ -19,4 +19,10 @@ public abstract class BasicStats
         right,
     }
     public abstract void DrawCreature();
+
+    public virtual void SetColor(string color)
+    {
+        Type type = typeof(ConsoleColor);
+        Console.ForegroundColor = (ConsoleColor)Enum.Parse(type, color);
+    }
 }

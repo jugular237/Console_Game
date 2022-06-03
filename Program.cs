@@ -18,7 +18,7 @@ namespace Console_Game
 
         private const int FieldSizeX = 95;
         private const int FieldSizeY = 30;
-        private const int frameRate = 20;
+        private const int frameRate = 14;
 
         private const int XCoordPlayer = Player.XCoord;
         private const int YCoordPlayer = Player.YCoord;
@@ -32,6 +32,7 @@ namespace Console_Game
         static BasicStats.Direction direction = BasicStats.Direction.up;
 
         static int monsterRate=0;
+        static bool bulletUpDestroyed = false;
 
         static void Main(string[] args)
         {
@@ -39,13 +40,15 @@ namespace Console_Game
             InitializeField();
             while(player.isDead==false)
                 Update();
+            Console.WriteLine("YOU LOST");
+            Console.ReadKey();
         }
 
         static void Update()
         {
-            player.DrawCreature();
-            AnimateBullet(new Coordinates(34, YCoordPlayer, 62, YCoordPlayer, XCoordPlayer+8, 20));
-            InitializeEnemy();
+            InitializePlayer();
+            if (enemy1.isDead == false)
+                InitializeEnemy();
             Thread.Sleep(frameRate);
         }
 
@@ -82,6 +85,10 @@ namespace Console_Game
             }
             if ((player.direction == BasicStats.Direction.up || bulletOnUpWay) && BulletcounterUp < coords.Y3)
             {
+                if (bulletUpDestroyed)
+                {
+                    DestroyBullet(ref bulletUpDestroyed, coords.Y3 - 1, ref BulletcounterUp);
+                }
                 bulletOnUpWay = true;
                 CleanOrWriteBullet(coords.X3, coords.Y3 - BulletcounterUp, "'");
                 CleanOrWriteBullet(coords.X3, (coords.Y3 + 1) - BulletcounterUp, " ");
@@ -96,6 +103,12 @@ namespace Console_Game
             }
 
         }
+
+        static void DestroyBullet(ref bool bulletDestroyed, int coord, ref int bulletCounter)
+        {
+           bulletDestroyed = false;
+           bulletCounter = coord;
+        }
         static void CleanOrWriteBullet(int coordx, int coordy, string symb)
         {
             Console.SetCursorPosition(coordx, coordy);
@@ -105,15 +118,31 @@ namespace Console_Game
         {
             if (enemy1.Health > 0)
             {
+                if (enemy1.CheckOnHit(20 - BulletcounterUp, mSpawn.YUpSpawn + enemy1.wayCounter))
+                {
+                    enemy1.GetDamaged();
+                    bulletUpDestroyed = true;
+                }
                 if (monsterRate % 20 == 0)
                     enemy1.AnimateEnemy(direction);
                 monsterRate++;
-                enemy1.CheckOnHit(21 - BulletcounterUp, mSpawn.YUpSpawn + enemy1.wayCounter);
             }
             else
             {
-                enemy1.CleanOrWriteSymbol(mSpawn.XUpSpawn, 21 - BulletcounterUp, "               ");
+                enemy1.CleanOrWriteSymbol(mSpawn.XUpSpawn, mSpawn.YUpSpawn + enemy1.wayCounter - 1, "                               ");
+                for (int i = 21 - BulletcounterUp; i > 0; i--)
+                {
+                    enemy1.CleanOrWriteSymbol(mSpawn.XUpSpawn, i, "        ");
+                }
+                enemy1.isDead = true;
             }
+        }
+
+        static void InitializePlayer()
+        {
+            player.SetColor("White");
+            player.DrawCreature();
+            AnimateBullet(new Coordinates(34, YCoordPlayer, 62, YCoordPlayer, XCoordPlayer + 8, 19));
         }
 
         static void InitializeField()
@@ -142,6 +171,19 @@ namespace Console_Game
                     }
                 }
                 
+            }
+
+            for(int i = FieldSizeY-3; i>FieldSizeY - 10; i--)
+            {
+                Console.SetCursorPosition(XCoordPlayer - 12, i);
+                Console.Write('|');
+                Console.SetCursorPosition(XCoordPlayer + 12, i);
+                Console.Write('|');
+            }
+            for(int i = XCoordPlayer - 12; i< XCoordPlayer + 12; i++)
+            {
+                Console.SetCursorPosition(i, FieldSizeY - 10);
+                Console.Write('-');
             }
                 
         }
