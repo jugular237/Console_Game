@@ -118,13 +118,17 @@ namespace Console_Game
         {
             if (enemy1.Health > 0)
             {
+                enemy1.isAttacking = false;
                 if (enemy1.CheckOnHit(20 - BulletcounterUp, mSpawn.YUpSpawn + enemy1.wayCounter))
                 {
                     enemy1.GetDamaged();
                     bulletUpDestroyed = true;
                 }
                 if (monsterRate % 20 == 0)
+                {
                     enemy1.AnimateEnemy(direction);
+                    enemy1.isAttacking = true;
+                }
                 monsterRate++;
             }
             else
@@ -140,9 +144,25 @@ namespace Console_Game
 
         static void InitializePlayer()
         {
-            player.SetColor("White");
-            player.DrawCreature();
-            AnimateBullet(new Coordinates(34, YCoordPlayer, 62, YCoordPlayer, XCoordPlayer + 8, 19));
+            player.DrawBox(new Coordinates(
+                x1: XCoordPlayer - 9, y1: FieldSizeY - 3,
+                x2: XCoordPlayer + 16, y2: FieldSizeY - 10,
+                x3: XCoordPlayer - 1, y3: FieldSizeY - 5,
+                x4: XCoordPlayer + 11, y4: FieldSizeY - 6)); 
+            if (player.Health > 0)
+            {
+                if(player.CheckOnHit(mSpawn.YUpSpawn + enemy1.wayCounter, FieldSizeY - 10) && enemy1.isAttacking)
+                {
+                    player.GetDamaged();
+                }
+                player.SetColor("White");
+                player.DrawCreature();
+                AnimateBullet(new Coordinates(34, YCoordPlayer, 62, YCoordPlayer, XCoordPlayer + 8, 19));
+            }
+            else
+            {
+                player.isDead = true;
+            }
         }
 
         static void InitializeField()
@@ -151,6 +171,7 @@ namespace Console_Game
             Console.SetBufferSize(FieldSizeX, FieldSizeY);
             Console.CursorVisible = false;
             DrawBorders();
+            
         }
 
         static void DrawBorders()
@@ -172,20 +193,9 @@ namespace Console_Game
                 }
                 
             }
-
-            for(int i = FieldSizeY-3; i>FieldSizeY - 10; i--)
-            {
-                Console.SetCursorPosition(XCoordPlayer - 12, i);
-                Console.Write('|');
-                Console.SetCursorPosition(XCoordPlayer + 12, i);
-                Console.Write('|');
-            }
-            for(int i = XCoordPlayer - 12; i< XCoordPlayer + 12; i++)
-            {
-                Console.SetCursorPosition(i, FieldSizeY - 10);
-                Console.Write('-');
-            }
-                
+        
         }
+
+        
     }
 }

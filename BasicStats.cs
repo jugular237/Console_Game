@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 public abstract class BasicStats
 {
-    
+    public bool isAttacking { get; set; }
     public bool isDead { get; set; }
 
     protected int Speed { get; set; }

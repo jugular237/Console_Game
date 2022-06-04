@@ -46,6 +46,7 @@
     <Compile Include="BasicStats.cs" />
     <Compile Include="Coordinates.cs" />
     <Compile Include="Enemy1.cs" />
+    <Compile Include="IHitable.cs" />
     <Compile Include="MostersSpawns.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />

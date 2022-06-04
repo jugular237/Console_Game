@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Enemy1 : BasicStats
+public class Enemy1 : BasicStats, IHitable
 {
     public int wayCounter = 0;
     public int Health { get; set; } = 5;

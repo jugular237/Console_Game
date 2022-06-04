@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Threading;
 
-public class Player:BasicStats
+public class Player:BasicStats, IHitable
 {
     public const int XCoord = 45;
     public const int YCoord = 25;
-    
+
+    public int Health { get; set; } = 10;
+
     public Direction direction;
     
     public override void DrawCreature()
@@ -83,15 +85,51 @@ public class Player:BasicStats
     private void ClearSpace(int xCoord, int yCoord)
     {
         CleanOrWriteSymbol(xCoord, yCoord, "                         ");
-        CleanOrWriteSymbol(xCoord, yCoord + 1, "                      ");
-        CleanOrWriteSymbol(xCoord, yCoord + 2, "           ");
-        CleanOrWriteSymbol(xCoord, yCoord - 1, "                  ");
-        CleanOrWriteSymbol(xCoord, yCoord - 2, "                  ");
-        CleanOrWriteSymbol(xCoord, yCoord - 3, "                  ");
-        CleanOrWriteSymbol(xCoord, yCoord - 4, "                  ");
+        CleanOrWriteSymbol(xCoord+4, yCoord + 1, "                  ");
+        CleanOrWriteSymbol(xCoord + 4, yCoord + 2, "        ");
+        CleanOrWriteSymbol(xCoord + 4, yCoord - 1, "                  ");
+        CleanOrWriteSymbol(xCoord + 4, yCoord - 2, "                  ");
+        CleanOrWriteSymbol(xCoord + 4, yCoord - 3, "                  ");
+        CleanOrWriteSymbol(xCoord + 4, yCoord - 4, "                  ");
     }
 
+    public void GetDamaged()
+    {
+        SetColor("Red");
+        DrawBox(new Coordinates(
+                x1: XCoord - 9, y1: YCoord + 2,
+                x2: XCoord + 16, y2: YCoord -5,
+                x3: XCoord - 1, y3: YCoord,
+                x4: XCoord + 11, y4: YCoord -1));
+        Health--;
+        SetColor("White");
+    }
+
+    public void DrawBox(Coordinates coords)
+    {
+        for (int i = coords.Y1; i > coords.Y2; i--)
+        {
+            if (i == coords.Y3 || i == coords.Y4) continue;
+            Console.SetCursorPosition(coords.X1, i);
+            Console.Write('|');
+            Console.SetCursorPosition(coords.X2, i);
+            Console.Write('|');
+        }
+        for (int i = coords.X1; i < coords.X2; i++)
+        {
+            if (i > coords.X3 && i < coords.X4) continue;
+            Console.SetCursorPosition(i, coords.Y2);
+            Console.Write('-');
+        }
+    }
+
+    public bool CheckOnHit(int enemyCoord, int playerBoxCoord)
+    {
+        return enemyCoord + 1 == playerBoxCoord;
+    }
 }
+
+
 
 public struct DrawHero
 {
