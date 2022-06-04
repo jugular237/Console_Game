@@ -10,7 +10,7 @@ namespace Console_Game
 {
     class Program 
     {
-        static Player player = new Player();
+        static Player player = Player.GetInstance();
 
         static Enemy1 enemy1 = new Enemy1();
 
@@ -143,17 +143,21 @@ namespace Console_Game
         }
 
         static void InitializePlayer()
-        {
-            player.DrawBox(new Coordinates(
-                x1: XCoordPlayer - 9, y1: FieldSizeY - 3,
-                x2: XCoordPlayer + 16, y2: FieldSizeY - 10,
-                x3: XCoordPlayer - 1, y3: FieldSizeY - 5,
-                x4: XCoordPlayer + 11, y4: FieldSizeY - 6)); 
+        { 
             if (player.Health > 0)
             {
                 if(player.CheckOnHit(mSpawn.YUpSpawn + enemy1.wayCounter, FieldSizeY - 10) && enemy1.isAttacking)
                 {
                     player.GetDamaged();
+                }
+                else
+                {
+                    player.SetColor("White");
+                    player.DrawBox(new Coordinates(
+                                x1: XCoordPlayer - 9, y1: FieldSizeY - 3,
+                                x2: XCoordPlayer + 16, y2: FieldSizeY - 10,
+                                x3: XCoordPlayer - 1, y3: FieldSizeY - 5,
+                                x4: XCoordPlayer + 11, y4: FieldSizeY - 6));
                 }
                 player.SetColor("White");
                 player.DrawCreature();

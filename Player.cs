@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Threading;
 
-public class Player:BasicStats, IHitable
+public sealed class Player:BasicStats, IHitable
 {
     public const int XCoord = 45;
     public const int YCoord = 25;
@@ -9,7 +10,19 @@ public class Player:BasicStats, IHitable
     public int Health { get; set; } = 10;
 
     public Direction direction;
-    
+
+    private static Player PlayerInstance;
+    private Player()
+    {
+
+    }
+
+    public static Player GetInstance()
+    {
+        if(PlayerInstance == null)
+            PlayerInstance = new Player();
+        return PlayerInstance;
+    }
     public override void DrawCreature()
     {
         direction = ReadMovement(direction);
@@ -93,20 +106,24 @@ public class Player:BasicStats, IHitable
         CleanOrWriteSymbol(xCoord + 4, yCoord - 4, "                  ");
     }
 
-    public void GetDamaged()
+    public async void GetDamaged()
+    {
+        ChangeColor();
+        await Task.Run(() => Health--);
+    }
+    public void ChangeColor()
     {
         SetColor("Red");
         DrawBox(new Coordinates(
-                x1: XCoord - 9, y1: YCoord + 2,
-                x2: XCoord + 16, y2: YCoord -5,
-                x3: XCoord - 1, y3: YCoord,
-                x4: XCoord + 11, y4: YCoord -1));
-        Health--;
+            x1: XCoord - 9, y1: YCoord + 2,
+            x2: XCoord + 16, y2: YCoord -5,
+            x3: XCoord - 1, y3: YCoord,
+            x4: XCoord + 11, y4: YCoord -1));
         SetColor("White");
     }
-
     public void DrawBox(Coordinates coords)
     {
+        
         for (int i = coords.Y1; i > coords.Y2; i--)
         {
             if (i == coords.Y3 || i == coords.Y4) continue;
