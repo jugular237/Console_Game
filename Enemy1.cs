@@ -10,7 +10,7 @@ public class Enemy1 : BasicStats, IHitable
     public int wayCounter = 0;
     public int Health { get; set; } = 5;
 
-    public Direction direction = Direction.up;
+    public Direction direction = Direction.Up;
 
     public MonstersSpawns monstrSp;
 
@@ -22,15 +22,15 @@ public class Enemy1 : BasicStats, IHitable
     public override void DrawCreature()
     {
         
-        if(direction == Direction.right)
+        if(direction == Direction.Right)
         {
             DrawEnemy(monstrSp.XLeftSpawn, monstrSp.YLeftSpawn);
         }
-        else if(direction == Direction.left)
+        else if(direction == Direction.Left)
         {
             DrawEnemy(monstrSp.XRightSpawn, monstrSp.YRightSpawn);
         }
-        else if(direction == Direction.up)
+        else if(direction == Direction.Up)
         {
             DrawEnemy(monstrSp.XUpSpawn, monstrSp.YUpSpawn);
         }
@@ -44,7 +44,7 @@ public class Enemy1 : BasicStats, IHitable
     public void AnimateEnemy(Direction directn)
     {
 
-        if(directn == Direction.up && wayCounter < wayLength)
+        if(directn == Direction.Up && wayCounter < wayLength)
         {
             DrawEnemy(monstrSp.XUpSpawn, monstrSp.YUpSpawn + wayCounter);
             CleanOrWriteSymbol(monstrSp.XUpSpawn, monstrSp.YUpSpawn + wayCounter - 1, "      |          ");

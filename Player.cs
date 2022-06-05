@@ -26,7 +26,7 @@ public sealed class Player:BasicStats, IHitable
     public override void DrawCreature()
     {
         direction = ReadMovement(direction);
-        if (direction == Direction.up)
+        if (direction == Direction.Up)
         {
             ClearSpace(XCoord - 9, YCoord);
             DrawPlayer(XCoord - 1, YCoord, XCoord, XCoord + 2, true,
@@ -39,7 +39,7 @@ public sealed class Player:BasicStats, IHitable
                         Legs = @"/ \"
                     });
         }
-        else if (direction == Direction.left)
+        else if (direction == Direction.Left)
         {
             ClearSpace(XCoord - 9, YCoord);
             DrawPlayer(XCoord - 9, YCoord, XCoord - 5, XCoord + 2, false,
@@ -50,7 +50,7 @@ public sealed class Player:BasicStats, IHitable
                         Legs = @"/ \"
                     });
         }
-        else if (direction == Direction.right)
+        else if (direction == Direction.Right)
         {
             ClearSpace(XCoord - 9, YCoord);
             DrawPlayer(XCoord, YCoord, XCoord + 1, XCoord + 2, false,
@@ -68,11 +68,11 @@ public sealed class Player:BasicStats, IHitable
             return currentDirection;
         ConsoleKey key = Console.ReadKey(true).Key;
         if (key == ConsoleKey.UpArrow)
-            currentDirection = Direction.up;
+            currentDirection = Direction.Up;
         else if (key == ConsoleKey.LeftArrow)
-            currentDirection = Direction.left;
+            currentDirection = Direction.Left;
         else if (key == ConsoleKey.RightArrow)
-            currentDirection = Direction.right;
+            currentDirection = Direction.Right;
         return currentDirection;
     }
 
@@ -115,27 +115,25 @@ public sealed class Player:BasicStats, IHitable
     {
         SetColor("Red");
         DrawBox(new Coordinates(
-            x1: XCoord - 9, y1: YCoord + 2,
-            x2: XCoord + 16, y2: YCoord -5,
-            x3: XCoord - 1, y3: YCoord,
-            x4: XCoord + 11, y4: YCoord -1));
+            new int[] { XCoord - 9, XCoord + 16, XCoord - 1, XCoord + 11 },
+            new int[] { YCoord + 2, YCoord - 5, YCoord, YCoord - 1 }));
         SetColor("White");
     }
     public void DrawBox(Coordinates coords)
     {
         
-        for (int i = coords.Y1; i > coords.Y2; i--)
+        for (int i = coords.yCoords[0]; i > coords.yCoords[1]; i--)
         {
-            if (i == coords.Y3 || i == coords.Y4) continue;
-            Console.SetCursorPosition(coords.X1, i);
+            if (i == coords.yCoords[2] || i == coords.yCoords[3]) continue;
+            Console.SetCursorPosition(coords.xCoords[0], i);
             Console.Write('|');
-            Console.SetCursorPosition(coords.X2, i);
+            Console.SetCursorPosition(coords.xCoords[1], i);
             Console.Write('|');
         }
-        for (int i = coords.X1; i < coords.X2; i++)
+        for (int i = coords.xCoords[0]; i < coords.xCoords[1]; i++)
         {
-            if (i > coords.X3 && i < coords.X4) continue;
-            Console.SetCursorPosition(i, coords.Y2);
+            if (i > coords.xCoords[2] && i < coords.xCoords[3]) continue;
+            Console.SetCursorPosition(i, coords.yCoords[1]);
             Console.Write('-');
         }
     }

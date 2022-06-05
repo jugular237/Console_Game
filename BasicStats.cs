@@ -13,10 +13,10 @@ public abstract class BasicStats
 
     public enum Direction
     {
-        none,
-        up,
-        left,
-        right,
+        None,
+        Up,
+        Left,
+        Right,
     }
     public abstract void DrawCreature();
 

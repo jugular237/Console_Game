@@ -31,7 +31,7 @@ namespace Console_Game
 
         static bool bulletOnLeftWay, bulletOnUpWay, bulletOnRightWay;
 
-        static BasicStats.Direction direction = BasicStats.Direction.up;
+        static BasicStats.Direction direction = BasicStats.Direction.Up;
 
         static int monsterRate=0;
         static bool bulletUpDestroyed = false;
@@ -65,47 +65,47 @@ namespace Console_Game
         }
         static void AnimateBullet(Coordinates coords)
         {
-            if ((player.direction == BasicStats.Direction.left || bulletOnLeftWay) && BulletcounterLeft < coords.X1)
+            if ((player.direction == BasicStats.Direction.Left || bulletOnLeftWay) && BulletcounterLeft < coords.xCoords[0])
             {
                 bulletOnLeftWay = true;
-                CleanOrWriteBullet(coords.X1 - BulletcounterLeft, coords.Y1, "-");
-                CleanOrWriteBullet((coords.X1 + 1) - BulletcounterLeft, coords.Y1, " ");
-                if (BulletcounterLeft == coords.X1-1)
+                CleanOrWriteBullet(coords.xCoords[0] - BulletcounterLeft, coords.yCoords[0], "-");
+                CleanOrWriteBullet((coords.xCoords[0] + 1) - BulletcounterLeft, coords.yCoords[0], " ");
+                if (BulletcounterLeft == coords.xCoords[0] - 1)
                 {
                     BulletcounterLeft = 0;
-                    CleanOrWriteBullet(1, coords.Y1, " ");
+                    CleanOrWriteBullet(1, coords.yCoords[0], " ");
                     bulletOnLeftWay = false;
                 }
                 else
                     BulletcounterLeft += 1;
             }
-            if ((player.direction == BasicStats.Direction.right || bulletOnRightWay) && BulletcounterRight + coords.X2 < FieldSizeX - 1)
+            if ((player.direction == BasicStats.Direction.Right || bulletOnRightWay) && BulletcounterRight + coords.xCoords[1] < FieldSizeX - 1)
             {
                 bulletOnRightWay = true;
-                CleanOrWriteBullet(coords.X2 + BulletcounterRight, coords.Y2, "-");
-                CleanOrWriteBullet((coords.X2 - 1) + BulletcounterRight, coords.Y2, " ");
-                if (BulletcounterRight + coords.X2 == FieldSizeX - 2)
+                CleanOrWriteBullet(coords.xCoords[1] + BulletcounterRight, coords.yCoords[1], "-");
+                CleanOrWriteBullet((coords.xCoords[1] - 1) + BulletcounterRight, coords.yCoords[1], " ");
+                if (BulletcounterRight + coords.xCoords[1] == FieldSizeX - 2)
                 {
                     BulletcounterRight = 0;
-                    CleanOrWriteBullet(FieldSizeX - 2, coords.Y2, " ");
+                    CleanOrWriteBullet(FieldSizeX - 2, coords.yCoords[1], " ");
                     bulletOnRightWay = false;
                 }
                 else
                     BulletcounterRight += 1;
             }
-            if ((player.direction == BasicStats.Direction.up || bulletOnUpWay) && BulletcounterUp < coords.Y3)
+            if ((player.direction == BasicStats.Direction.Up || bulletOnUpWay) && BulletcounterUp < coords.yCoords[2])
             {
                 if (bulletUpDestroyed)
                 {
-                    DestroyBullet(ref bulletUpDestroyed, coords.Y3 - 1, ref BulletcounterUp);
+                    DestroyBullet(ref bulletUpDestroyed, coords.yCoords[2] - 1, ref BulletcounterUp);
                 }
                 bulletOnUpWay = true;
-                CleanOrWriteBullet(coords.X3, coords.Y3 - BulletcounterUp, "'");
-                CleanOrWriteBullet(coords.X3, (coords.Y3 + 1) - BulletcounterUp, " ");
-                if (BulletcounterUp == coords.Y3 - 1)
+                CleanOrWriteBullet(coords.xCoords[2], coords.yCoords[2] - BulletcounterUp, "'");
+                CleanOrWriteBullet(coords.xCoords[2], (coords.yCoords[2] + 1) - BulletcounterUp, " ");
+                if (BulletcounterUp == coords.yCoords[2] - 1)
                 {
                     BulletcounterUp = 0;
-                    CleanOrWriteBullet(coords.X3, 1, " ");
+                    CleanOrWriteBullet(coords.xCoords[2], 1, " ");
                     bulletOnUpWay = false;
                 }
                 else
@@ -150,26 +150,32 @@ namespace Console_Game
             }
             else
             {
-                if (enemy1.reachedBox) CleanOrWriteBullet(mSpawn.XUpSpawn, FieldSizeY-11, "                       ");
-                enemy1.CleanOrWriteSymbol(mSpawn.XUpSpawn, mSpawn.YUpSpawn + enemy1.wayCounter - 1, "                               ");
-                YcoordEngaged[enemy1.EngagedYcoord] = false;
-                enemy1.isDead = true;
+                Enemy1Die(enemy1);
             }
         }
         
+        static void Enemy1Die(Enemy1 enemy1)
+        {
+            if (enemy1.reachedBox) 
+                CleanOrWriteBullet(mSpawn.XUpSpawn, FieldSizeY - 11, "                       ");
+            else 
+                enemy1.CleanOrWriteSymbol(mSpawn.XUpSpawn, mSpawn.YUpSpawn + enemy1.wayCounter - 1, "                               ");
+            YcoordEngaged[enemy1.EngagedYcoord] = false;
+            enemy1.isDead = true;
+        }
         
         static void InitializePlayer()
-        { 
+        {
             if (player.Health > 0)
             {
                 player.SetColor("White");
                 player.DrawBox(new Coordinates(
-                                x1: XCoordPlayer - 9, y1: FieldSizeY - 3,
-                                x2: XCoordPlayer + 16, y2: FieldSizeY - 10,
-                                x3: XCoordPlayer - 1, y3: FieldSizeY - 5,
-                                x4: XCoordPlayer + 11, y4: FieldSizeY - 6));
+                    new int[] {XCoordPlayer - 9, XCoordPlayer + 16, XCoordPlayer - 1, XCoordPlayer + 11  }, 
+                    new int[] { FieldSizeY - 3, FieldSizeY - 10,FieldSizeY - 5, FieldSizeY - 6}));
                 player.DrawCreature();
-                AnimateBullet(new Coordinates(34, YCoordPlayer, 62, YCoordPlayer, XCoordPlayer + 8, 19));
+                AnimateBullet(new Coordinates(
+                    new int[] { 34, 62, XCoordPlayer + 8},
+                    new int[] { YCoordPlayer, YCoordPlayer, 19}));
             }
             else
             {
