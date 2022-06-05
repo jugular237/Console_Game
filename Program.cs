@@ -12,9 +12,11 @@ namespace Console_Game
     {
         static Player player = Player.GetInstance();
 
-        static Enemy1 enemy1 = new Enemy1();
-
         static MonstersSpawns mSpawn;
+
+        static Queue<Enemy1> enemies1 = new Queue<Enemy1>();
+
+        static Random random = new Random();
 
         private const int FieldSizeX = 95;
         private const int FieldSizeY = 30;
@@ -33,6 +35,8 @@ namespace Console_Game
 
         static int monsterRate=0;
         static bool bulletUpDestroyed = false;
+        public static bool[] YcoordEngaged = new bool[Enemy1.wayLength+3];
+
 
         static void Main(string[] args)
         {
@@ -47,12 +51,18 @@ namespace Console_Game
         static void Update()
         {
             InitializePlayer();
-            if (enemy1.isDead == false)
-                InitializeEnemy();
+            SpawnerEnemy1();
             Thread.Sleep(frameRate);
         }
 
-        
+        static  void SpawnerEnemy1()
+        {
+            if (random.Next(0, 200) == 3)
+                enemies1.Enqueue(new Enemy1());
+            foreach (var enemy1 in enemies1)
+                if (enemy1.isDead == false) 
+                    InitializeEnemy(enemy1);
+        }
         static void AnimateBullet(Coordinates coords)
         {
             if ((player.direction == BasicStats.Direction.left || bulletOnLeftWay) && BulletcounterLeft < coords.X1)
@@ -106,60 +116,58 @@ namespace Console_Game
 
         static void DestroyBullet(ref bool bulletDestroyed, int coord, ref int bulletCounter)
         {
-           bulletDestroyed = false;
-           bulletCounter = coord;
+            bulletDestroyed = false;
+            bulletCounter = coord;  
         }
         static void CleanOrWriteBullet(int coordx, int coordy, string symb)
         {
             Console.SetCursorPosition(coordx, coordy);
             Console.Write(symb);
         }  
-        static void InitializeEnemy()
+        static void InitializeEnemy(Enemy1 enemy1)
         {
             if (enemy1.Health > 0)
             {
+                if (player.CheckOnHit(mSpawn.YUpSpawn + enemy1.wayCounter, FieldSizeY - 10) && enemy1.isAttacking)
+                {
+                    player.GetDamaged();
+                }
                 enemy1.isAttacking = false;
                 if (enemy1.CheckOnHit(20 - BulletcounterUp, mSpawn.YUpSpawn + enemy1.wayCounter))
                 {
                     enemy1.GetDamaged();
                     bulletUpDestroyed = true;
                 }
-                if (monsterRate % 20 == 0)
+                if (monsterRate % 20 == 0 && YcoordEngaged[enemy1.EngagedYcoord + 1] == false && enemy1.reachedBox == false)
                 {
-                    enemy1.AnimateEnemy(direction);
-                    enemy1.isAttacking = true;
+                    enemy1.AnimateEnemy(direction); 
+                    YcoordEngaged[enemy1.EngagedYcoord] = true;
+                    YcoordEngaged[enemy1.EngagedYcoord - 1] = false;
                 }
+                else if (monsterRate % 20 == 0 && enemy1.reachedBox == true)
+                    enemy1.isAttacking = true;
                 monsterRate++;
             }
             else
             {
+                if (enemy1.reachedBox) CleanOrWriteBullet(mSpawn.XUpSpawn, FieldSizeY-11, "                       ");
                 enemy1.CleanOrWriteSymbol(mSpawn.XUpSpawn, mSpawn.YUpSpawn + enemy1.wayCounter - 1, "                               ");
-                for (int i = 21 - BulletcounterUp; i > 0; i--)
-                {
-                    enemy1.CleanOrWriteSymbol(mSpawn.XUpSpawn, i, "        ");
-                }
+                YcoordEngaged[enemy1.EngagedYcoord] = false;
                 enemy1.isDead = true;
             }
         }
-
+        
+        
         static void InitializePlayer()
         { 
             if (player.Health > 0)
             {
-                if(player.CheckOnHit(mSpawn.YUpSpawn + enemy1.wayCounter, FieldSizeY - 10) && enemy1.isAttacking)
-                {
-                    player.GetDamaged();
-                }
-                else
-                {
-                    player.SetColor("White");
-                    player.DrawBox(new Coordinates(
+                player.SetColor("White");
+                player.DrawBox(new Coordinates(
                                 x1: XCoordPlayer - 9, y1: FieldSizeY - 3,
                                 x2: XCoordPlayer + 16, y2: FieldSizeY - 10,
                                 x3: XCoordPlayer - 1, y3: FieldSizeY - 5,
                                 x4: XCoordPlayer + 11, y4: FieldSizeY - 6));
-                }
-                player.SetColor("White");
                 player.DrawCreature();
                 AnimateBullet(new Coordinates(34, YCoordPlayer, 62, YCoordPlayer, XCoordPlayer + 8, 19));
             }
@@ -175,7 +183,6 @@ namespace Console_Game
             Console.SetBufferSize(FieldSizeX, FieldSizeY);
             Console.CursorVisible = false;
             DrawBorders();
-            
         }
 
         static void DrawBorders()

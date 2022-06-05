@@ -13,6 +13,12 @@ public class Enemy1 : BasicStats, IHitable
     public Direction direction = Direction.up;
 
     public MonstersSpawns monstrSp;
+
+    public const int wayLength = 18;
+
+    public int EngagedYcoord = 0;
+    public bool reachedBox = false;
+    
     public override void DrawCreature()
     {
         
@@ -38,12 +44,15 @@ public class Enemy1 : BasicStats, IHitable
     public void AnimateEnemy(Direction directn)
     {
 
-        if(directn == Direction.up && wayCounter < 17)
+        if(directn == Direction.up && wayCounter < wayLength)
         {
             DrawEnemy(monstrSp.XUpSpawn, monstrSp.YUpSpawn + wayCounter);
             CleanOrWriteSymbol(monstrSp.XUpSpawn, monstrSp.YUpSpawn + wayCounter - 1, "      |          ");
-            if (wayCounter != 18)
+            EngagedYcoord = monstrSp.YUpSpawn + wayCounter;
+            if (wayCounter != wayLength - 1)
                 wayCounter++;
+            else
+                reachedBox = true;
         }
     }
 
@@ -55,7 +64,10 @@ public class Enemy1 : BasicStats, IHitable
     public void GetDamaged()
     {
         SetColor("Red");
-        DrawEnemy(monstrSp.XUpSpawn, monstrSp.YUpSpawn + wayCounter - 1);
+        if(!reachedBox)
+            DrawEnemy(monstrSp.XUpSpawn, monstrSp.YUpSpawn + wayCounter - 1);
+        else
+            DrawEnemy(monstrSp.XUpSpawn, monstrSp.YUpSpawn + wayCounter);
         Health--;
     }
 
@@ -63,5 +75,9 @@ public class Enemy1 : BasicStats, IHitable
     {
         Console.SetCursorPosition(coordx, coordy);
         Console.Write(symb);
+    }
+    public void CheckOnEnemyInFront(int xCoord, int yCoord)
+    {
+
     }
 }
