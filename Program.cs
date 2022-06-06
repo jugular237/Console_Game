@@ -15,12 +15,19 @@ namespace Console_Game
         static MonstersSpawns mSpawn;
 
         static Queue<Enemy1> enemies1 = new Queue<Enemy1>();
+        static List<int> spawnIntervals = new List<int>() {200 };
 
         static Random random = new Random();
 
         private const int FieldSizeX = 95;
         private const int FieldSizeY = 30;
         private const int frameRate = 14;
+        private const int spawnNumber = 3;
+        private const int XLeftBorder = 1;
+        private const int XRightBorder = FieldSizeX - 2;
+        private const int YTopBorder = 1;
+        private const int YBottomBorder = FieldSizeY - 2;
+        private const int YBoxRoof = FieldSizeY - 10;
 
         private const int XCoordPlayer = Player.XCoord;
         private const int YCoordPlayer = Player.YCoord;
@@ -29,20 +36,22 @@ namespace Console_Game
         private static int BulletcounterRight = 0;
         private static int BulletcounterUp = 0;
 
-        static bool bulletOnLeftWay, bulletOnUpWay, bulletOnRightWay;
+        static bool bulletOnLeftWay;
+        static bool bulletOnUpWay; 
+        static bool bulletOnRightWay;
 
         static BasicStats.Direction direction = BasicStats.Direction.Up;
 
         static int monsterRate=0;
         static bool bulletUpDestroyed = false;
         public static bool[] YcoordEngaged = new bool[Enemy1.wayLength+3];
-
+        
 
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.Unicode;
             InitializeField();
-            while(player.isDead==false)
+            while(!player.isDead)
                 Update();
             Console.WriteLine("YOU LOST");
             Console.ReadKey();
@@ -57,7 +66,7 @@ namespace Console_Game
 
         static  void SpawnerEnemy1()
         {
-            if (random.Next(0, 200) == 3)
+            if (random.Next(0, spawnIntervals[0]) == spawnNumber )
                 enemies1.Enqueue(new Enemy1());
             foreach (var enemy1 in enemies1)
                 if (enemy1.isDead == false) 
@@ -65,7 +74,13 @@ namespace Console_Game
         }
         static void AnimateBullet(Coordinates coords)
         {
-            if ((player.direction == BasicStats.Direction.Left || bulletOnLeftWay) && BulletcounterLeft < coords.xCoords[0])
+            bool checkOnLeft = player.direction == BasicStats.Direction.Left;
+            bool checkOnRight = player.direction == BasicStats.Direction.Right;
+            bool checkOnUp = player.direction == BasicStats.Direction.Up;
+            bool bulletOnLeftEnd = BulletcounterLeft < coords.xCoords[0];
+            bool bulletOnRightEnd = BulletcounterRight + coords.xCoords[1] < FieldSizeX - 1;
+            bool bulletOnUpEnd = BulletcounterUp < coords.yCoords[2];
+            if ((checkOnLeft || bulletOnLeftWay) && bulletOnLeftEnd)
             {
                 bulletOnLeftWay = true;
                 CleanOrWriteBullet(coords.xCoords[0] - BulletcounterLeft, coords.yCoords[0], "-");
@@ -73,43 +88,43 @@ namespace Console_Game
                 if (BulletcounterLeft == coords.xCoords[0] - 1)
                 {
                     BulletcounterLeft = 0;
-                    CleanOrWriteBullet(1, coords.yCoords[0], " ");
+                    CleanOrWriteBullet(XLeftBorder, coords.yCoords[0], " ");
                     bulletOnLeftWay = false;
                 }
                 else
-                    BulletcounterLeft += 1;
+                    BulletcounterLeft++;
             }
-            if ((player.direction == BasicStats.Direction.Right || bulletOnRightWay) && BulletcounterRight + coords.xCoords[1] < FieldSizeX - 1)
+            if ((checkOnRight || bulletOnRightWay) && bulletOnRightEnd)
             {
                 bulletOnRightWay = true;
                 CleanOrWriteBullet(coords.xCoords[1] + BulletcounterRight, coords.yCoords[1], "-");
                 CleanOrWriteBullet((coords.xCoords[1] - 1) + BulletcounterRight, coords.yCoords[1], " ");
-                if (BulletcounterRight + coords.xCoords[1] == FieldSizeX - 2)
+                if (BulletcounterRight + coords.xCoords[1] == XRightBorder)
                 {
                     BulletcounterRight = 0;
-                    CleanOrWriteBullet(FieldSizeX - 2, coords.yCoords[1], " ");
+                    CleanOrWriteBullet(XRightBorder, coords.yCoords[1], " ");
                     bulletOnRightWay = false;
                 }
                 else
-                    BulletcounterRight += 1;
+                    BulletcounterRight++;
             }
-            if ((player.direction == BasicStats.Direction.Up || bulletOnUpWay) && BulletcounterUp < coords.yCoords[2])
+            if ((checkOnUp || bulletOnUpWay) && bulletOnUpEnd)
             {
+                bulletOnUpWay = true;
                 if (bulletUpDestroyed)
                 {
                     DestroyBullet(ref bulletUpDestroyed, coords.yCoords[2] - 1, ref BulletcounterUp);
                 }
-                bulletOnUpWay = true;
                 CleanOrWriteBullet(coords.xCoords[2], coords.yCoords[2] - BulletcounterUp, "'");
                 CleanOrWriteBullet(coords.xCoords[2], (coords.yCoords[2] + 1) - BulletcounterUp, " ");
                 if (BulletcounterUp == coords.yCoords[2] - 1)
                 {
                     BulletcounterUp = 0;
-                    CleanOrWriteBullet(coords.xCoords[2], 1, " ");
+                    CleanOrWriteBullet(coords.xCoords[2], YTopBorder, " ");
                     bulletOnUpWay = false;
                 }
                 else
-                    BulletcounterUp += 1;
+                    BulletcounterUp++;
             }
 
         }
@@ -126,40 +141,41 @@ namespace Console_Game
         }  
         static void InitializeEnemy(Enemy1 enemy1)
         {
+            bool playerUnderHit = player.CheckOnHit(mSpawn.YUpSpawn + enemy1.wayCounter, YBoxRoof);
+            bool enemyUnderHit = enemy1.CheckOnHit(YBoxRoof - BulletcounterUp, mSpawn.YUpSpawn + enemy1.wayCounter);
+            bool enemy1Turn = monsterRate % enemy1.Speed == 0;
             if (enemy1.Health > 0)
             {
-                if (player.CheckOnHit(mSpawn.YUpSpawn + enemy1.wayCounter, FieldSizeY - 10) && enemy1.isAttacking)
+                if (playerUnderHit)
                 {
                     player.GetDamaged();
                 }
                 enemy1.isAttacking = false;
-                if (enemy1.CheckOnHit(20 - BulletcounterUp, mSpawn.YUpSpawn + enemy1.wayCounter))
+                if (enemyUnderHit)
                 {
                     enemy1.GetDamaged();
                     bulletUpDestroyed = true;
                 }
-                if (monsterRate % 20 == 0 && YcoordEngaged[enemy1.EngagedYcoord + 1] == false && enemy1.reachedBox == false)
+                if (enemy1Turn && !YcoordEngaged[enemy1.EngagedYcoord + 1] && !enemy1.reachedBox)
                 {
                     enemy1.AnimateEnemy(direction); 
                     YcoordEngaged[enemy1.EngagedYcoord] = true;
                     YcoordEngaged[enemy1.EngagedYcoord - 1] = false;
                 }
-                else if (monsterRate % 20 == 0 && enemy1.reachedBox == true)
+                else if (enemy1Turn && enemy1.reachedBox)
                     enemy1.isAttacking = true;
                 monsterRate++;
             }
             else
-            {
                 Enemy1Die(enemy1);
-            }
         }
         
         static void Enemy1Die(Enemy1 enemy1)
         {
             if (enemy1.reachedBox) 
-                CleanOrWriteBullet(mSpawn.XUpSpawn, FieldSizeY - 11, "                       ");
+                CleanOrWriteBullet(mSpawn.XUpSpawn, YBoxRoof-1, new String(' ', 23));
             else 
-                enemy1.CleanOrWriteSymbol(mSpawn.XUpSpawn, mSpawn.YUpSpawn + enemy1.wayCounter - 1, "                               ");
+                enemy1.CleanOrWriteSymbol(mSpawn.XUpSpawn, mSpawn.YUpSpawn + enemy1.wayCounter - 1, new String(' ', 23));
             YcoordEngaged[enemy1.EngagedYcoord] = false;
             enemy1.isDead = true;
         }
@@ -178,9 +194,7 @@ namespace Console_Game
                     new int[] { YCoordPlayer, YCoordPlayer, 19}));
             }
             else
-            {
                 player.isDead = true;
-            }
         }
 
         static void InitializeField()

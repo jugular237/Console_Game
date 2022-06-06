@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 
-
-
-	public struct Coordinates
-	{
+public struct Coordinates
+{
     
     public int[] xCoords;
     public int[] yCoords;
@@ -13,5 +10,5 @@ using System.Collections.Generic;
         xCoords = xCoordsList;
         yCoords = yCoordsList;
 	}
-	}
+}
 

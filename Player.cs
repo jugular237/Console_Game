@@ -6,6 +6,8 @@ public sealed class Player:BasicStats, IHitable
 {
     public const int XCoord = 45;
     public const int YCoord = 25;
+    private const int LeftBorderPlayer = XCoord - 5;
+    private const int LeftBorderBox = XCoord - 9;
 
     public int Health { get; set; } = 10;
 
@@ -28,8 +30,10 @@ public sealed class Player:BasicStats, IHitable
         direction = ReadMovement(direction);
         if (direction == Direction.Up)
         {
-            ClearSpace(XCoord - 9, YCoord);
-            DrawPlayer(XCoord - 1, YCoord, XCoord, XCoord + 2, true,
+            ClearSpace(LeftBorderPlayer, YCoord, LeftBorderBox);
+            DrawPlayer(true, new Coordinates(
+                new int[] { XCoord - 1, XCoord, XCoord + 2, XCoord+6},
+                new int[] { YCoord, YCoord + 1, YCoord + 2 }), 
                     new DrawHero
                     {
                         OverHead2 = @"||",
@@ -41,8 +45,10 @@ public sealed class Player:BasicStats, IHitable
         }
         else if (direction == Direction.Left)
         {
-            ClearSpace(XCoord - 9, YCoord);
-            DrawPlayer(XCoord - 9, YCoord, XCoord - 5, XCoord + 2, false,
+            ClearSpace(LeftBorderPlayer, YCoord, LeftBorderBox);
+            DrawPlayer(false, new Coordinates(
+                new int[] { XCoord - 9, XCoord - 5, XCoord + 2, },
+                new int[] { YCoord, YCoord + 1, YCoord + 2 }),
                     new DrawHero
                     {
                         Head = @"8======* (▀ ͜ʖ▀)",
@@ -52,8 +58,10 @@ public sealed class Player:BasicStats, IHitable
         }
         else if (direction == Direction.Right)
         {
-            ClearSpace(XCoord - 9, YCoord);
-            DrawPlayer(XCoord, YCoord, XCoord + 1, XCoord + 2, false,
+            ClearSpace(LeftBorderPlayer, YCoord, LeftBorderBox);
+            DrawPlayer(false, new Coordinates(
+                new int[] { XCoord, XCoord + 1, XCoord + 2 },
+                new int[] {YCoord, YCoord + 1, YCoord + 2 }), 
                     new DrawHero
                     {
                         Head = @"(▀ ͜ʖ▀) *======8",
@@ -81,29 +89,36 @@ public sealed class Player:BasicStats, IHitable
         Console.SetCursorPosition(coordx, coordy);
         Console.Write(symb);
     }
-    private void DrawPlayer(int x1Coord, int y1Coord, int x2Coord, int x3Coord, bool hasOverHead, DrawHero drawhero)
+    private void DrawPlayer(bool hasOverHead, Coordinates coords, DrawHero drawhero)
     {
         if (hasOverHead)
         {
-           CleanOrWriteSymbol(x1Coord + 8, y1Coord - 1, @drawhero.OverHead2);
-           CleanOrWriteSymbol(x1Coord + 8, y1Coord - 2, @drawhero.OverHead2);
-           CleanOrWriteSymbol(x1Coord + 8, y1Coord - 3, @drawhero.OverHead2);
-           CleanOrWriteSymbol(x1Coord + 8, y1Coord - 4, @drawhero.OverHead1);
+            for(int i = 1; i< 5; i++)
+            {
+                if(i == 4)
+                    CleanOrWriteSymbol(coords.xCoords[3], coords.yCoords[0] - i, @drawhero.OverHead1);
+                else
+                CleanOrWriteSymbol(coords.xCoords[3], coords.yCoords[0] - i, @drawhero.OverHead2);
+            }
         }
-        CleanOrWriteSymbol(x1Coord, y1Coord, @drawhero.Head);
-        CleanOrWriteSymbol(x2Coord, y1Coord + 1, @drawhero.BodyNGun);
-        CleanOrWriteSymbol(x3Coord, y1Coord + 2, @drawhero.Legs);
+        CleanOrWriteSymbol(coords.xCoords[0], coords.yCoords[0], @drawhero.Head);
+        CleanOrWriteSymbol(coords.xCoords[1], coords.yCoords[1], @drawhero.BodyNGun);
+        CleanOrWriteSymbol(coords.xCoords[2], coords.yCoords[2], @drawhero.Legs);
     }
 
-    private void ClearSpace(int xCoord, int yCoord)
+    private void ClearSpace(int xCoord, int yCoord, int leftBordBox)
     {
-        CleanOrWriteSymbol(xCoord, yCoord, "                         ");
-        CleanOrWriteSymbol(xCoord+4, yCoord + 1, "                  ");
-        CleanOrWriteSymbol(xCoord + 4, yCoord + 2, "        ");
-        CleanOrWriteSymbol(xCoord + 4, yCoord - 1, "                  ");
-        CleanOrWriteSymbol(xCoord + 4, yCoord - 2, "                  ");
-        CleanOrWriteSymbol(xCoord + 4, yCoord - 3, "                  ");
-        CleanOrWriteSymbol(xCoord + 4, yCoord - 4, "                  ");
+        int counter = 4;
+        string[] spaces = { new String(' ', 18), new String(' ', 18), new String(' ', 18),
+            new String(' ', 18),  new String(' ', 25) , new String(' ', 18), new String(' ', 8)};
+        foreach(var space in spaces)
+        {
+            if (counter == 0)
+                CleanOrWriteSymbol(leftBordBox, yCoord, space);
+            else
+                CleanOrWriteSymbol(xCoord, yCoord - counter, space);
+            counter--;
+        }
     }
 
     public async void GetDamaged()
@@ -124,7 +139,8 @@ public sealed class Player:BasicStats, IHitable
         
         for (int i = coords.yCoords[0]; i > coords.yCoords[1]; i--)
         {
-            if (i == coords.yCoords[2] || i == coords.yCoords[3]) continue;
+            if (i == coords.yCoords[2] || i == coords.yCoords[3])
+                continue;
             Console.SetCursorPosition(coords.xCoords[0], i);
             Console.Write('|');
             Console.SetCursorPosition(coords.xCoords[1], i);
@@ -132,7 +148,8 @@ public sealed class Player:BasicStats, IHitable
         }
         for (int i = coords.xCoords[0]; i < coords.xCoords[1]; i++)
         {
-            if (i > coords.xCoords[2] && i < coords.xCoords[3]) continue;
+            if (i > coords.xCoords[2] && i < coords.xCoords[3]) 
+                continue;
             Console.SetCursorPosition(i, coords.yCoords[1]);
             Console.Write('-');
         }

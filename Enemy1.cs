@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 public class Enemy1 : BasicStats, IHitable
 {
     public int wayCounter = 0;
+    public int Speed { get; set; } = 20;
     public int Health { get; set; } = 5;
 
     public Direction direction = Direction.Up;
