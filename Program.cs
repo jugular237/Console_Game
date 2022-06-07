@@ -35,6 +35,7 @@ namespace Console_Game
         private static int BulletcounterLeft = 0;
         private static int BulletcounterRight = 0;
         private static int BulletcounterUp = 0;
+        private static int BulletSkipCounter = 0;
 
         static bool bulletOnLeftWay;
         static bool bulletOnUpWay; 
@@ -113,27 +114,37 @@ namespace Console_Game
                 bulletOnUpWay = true;
                 if (bulletUpDestroyed)
                 {
-                    DestroyBullet(ref bulletUpDestroyed, coords.yCoords[2] - 1, ref BulletcounterUp);
-                }
-                CleanOrWriteBullet(coords.xCoords[2], coords.yCoords[2] - BulletcounterUp, "'");
-                CleanOrWriteBullet(coords.xCoords[2], (coords.yCoords[2] + 1) - BulletcounterUp, " ");
-                if (BulletcounterUp == coords.yCoords[2] - 1)
-                {
                     BulletcounterUp = 0;
-                    CleanOrWriteBullet(coords.xCoords[2], YTopBorder, " ");
-                    bulletOnUpWay = false;
+                    if (BulletSkipCounter == coords.yCoords[2] - 1)
+                    {
+                        BulletSkipCounter = 0;
+                        bulletOnUpWay = false;
+                        bulletUpDestroyed = false;
+                    }
+                    if (bulletOnUpWay)
+                        BulletSkipCounter++;
                 }
-                else
-                    BulletcounterUp++;
+                else if (!bulletUpDestroyed)
+                {
+                    CleanOrWriteBullet(coords.xCoords[2], coords.yCoords[2] - BulletcounterUp, "'");
+                    CleanOrWriteBullet(coords.xCoords[2], (coords.yCoords[2] + 1) - BulletcounterUp, " ");
+                    if (BulletcounterUp == coords.yCoords[2] - 1)
+                    {
+                        BulletcounterUp = 0;
+                        CleanOrWriteBullet(coords.xCoords[2], YTopBorder, " ");
+                        bulletOnUpWay = false;
+                        BulletSkipCounter = 0;
+                    }
+                    if (bulletOnUpWay)
+                    {
+                        BulletcounterUp++;
+                        BulletSkipCounter++;
+                    }
+                }
             }
 
         }
 
-        static void DestroyBullet(ref bool bulletDestroyed, int coord, ref int bulletCounter)
-        {
-            bulletDestroyed = false;
-            bulletCounter = coord;  
-        }
         static void CleanOrWriteBullet(int coordx, int coordy, string symb)
         {
             Console.SetCursorPosition(coordx, coordy);
@@ -141,16 +152,16 @@ namespace Console_Game
         }  
         static void InitializeEnemy(Enemy1 enemy1)
         {
+            enemy1.isAttacking = false;
             bool playerUnderHit = player.CheckOnHit(mSpawn.YUpSpawn + enemy1.wayCounter, YBoxRoof);
             bool enemyUnderHit = enemy1.CheckOnHit(YBoxRoof - BulletcounterUp, mSpawn.YUpSpawn + enemy1.wayCounter);
             bool enemy1Turn = monsterRate % enemy1.Speed == 0;
             if (enemy1.Health > 0)
             {
-                if (playerUnderHit)
+                if (playerUnderHit && enemy1Turn)
                 {
                     player.GetDamaged();
                 }
-                enemy1.isAttacking = false;
                 if (enemyUnderHit)
                 {
                     enemy1.GetDamaged();
@@ -186,7 +197,7 @@ namespace Console_Game
             {
                 player.SetColor("White");
                 player.DrawBox(new Coordinates(
-                    new int[] {XCoordPlayer - 9, XCoordPlayer + 16, XCoordPlayer - 1, XCoordPlayer + 11  }, 
+                    new int[] {XCoordPlayer - 9, XCoordPlayer + 16, XCoordPlayer - 1, XCoordPlayer + 11}, 
                     new int[] { FieldSizeY - 3, FieldSizeY - 10,FieldSizeY - 5, FieldSizeY - 6}));
                 player.DrawCreature();
                 AnimateBullet(new Coordinates(
@@ -222,7 +233,7 @@ namespace Console_Game
                         Console.Write('|');
                     }
                 }
-                
+                 
             }
         
         }

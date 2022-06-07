@@ -65,7 +65,7 @@ public class Enemy1 : BasicStats, IHitable
     public void GetDamaged()
     {
         SetColor("Red");
-        if(!reachedBox)
+        if (!reachedBox)
             DrawEnemy(monstrSp.XUpSpawn, monstrSp.YUpSpawn + wayCounter - 1);
         else
             DrawEnemy(monstrSp.XUpSpawn, monstrSp.YUpSpawn + wayCounter);

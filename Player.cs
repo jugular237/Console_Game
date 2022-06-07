@@ -9,7 +9,7 @@ public sealed class Player:BasicStats, IHitable
     private const int LeftBorderPlayer = XCoord - 5;
     private const int LeftBorderBox = XCoord - 9;
 
-    public int Health { get; set; } = 10;
+    public int Health { get; set; } = 20;
 
     public Direction direction;
 
