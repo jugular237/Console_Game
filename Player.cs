@@ -89,7 +89,7 @@ public sealed class Player:BasicStats, IHitable
         Console.SetCursorPosition(coordx, coordy);
         Console.Write(symb);
     }
-    private void DrawPlayer(bool hasOverHead, Coordinates coords, DrawHero drawhero)
+    public void DrawPlayer(bool hasOverHead, Coordinates coords, DrawHero drawhero)
     {
         if (hasOverHead)
         {
@@ -131,7 +131,7 @@ public sealed class Player:BasicStats, IHitable
         SetColor("Red");
         DrawBox(new Coordinates(
             new int[] { XCoord - 9, XCoord + 16, XCoord - 1, XCoord + 11 },
-            new int[] { YCoord + 2, YCoord - 5, YCoord, YCoord - 1 }));
+            new int[] { YCoord + 2, YCoord - 6, YCoord, YCoord - 1 }));
         SetColor("White");
     }
     public void DrawBox(Coordinates coords)

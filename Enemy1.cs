@@ -18,7 +18,6 @@ public class Enemy1 : BasicStats, IHitable
     public const int wayLength = 18;
 
     public int EngagedYcoord = 0;
-    public bool reachedBox = false;
     
     public override void DrawCreature()
     {
@@ -45,18 +44,23 @@ public class Enemy1 : BasicStats, IHitable
     public void AnimateEnemy(Direction directn)
     {
 
-        if(directn == Direction.Up && wayCounter < wayLength)
+        if(directn == Direction.Up && wayCounter < wayLength-1)
         {
             DrawEnemy(monstrSp.XUpSpawn, monstrSp.YUpSpawn + wayCounter);
-            CleanOrWriteSymbol(monstrSp.XUpSpawn, monstrSp.YUpSpawn + wayCounter - 1, "      |          ");
+            CleanOrWriteSymbol(monstrSp.XUpSpawn, monstrSp.YUpSpawn + wayCounter - 1, "      |        ");
             EngagedYcoord = monstrSp.YUpSpawn + wayCounter;
-            if (wayCounter != wayLength - 1)
+            if (wayCounter != wayLength-1)
                 wayCounter++;
-            else
-                reachedBox = true;
+            
         }
     }
-
+    public void ClearWeb(int xCoord, int yCoord, string space, int roofCoord)
+    {
+        for(int i = yCoord; i  < roofCoord; i++)
+        {
+            CleanOrWriteSymbol(xCoord, i, space);
+        }
+    }
     public bool CheckOnHit(int bulletCoord, int enemyCoord)
     {
         return bulletCoord == enemyCoord - 1;
@@ -65,10 +69,7 @@ public class Enemy1 : BasicStats, IHitable
     public void GetDamaged()
     {
         SetColor("Red");
-        if (!reachedBox)
-            DrawEnemy(monstrSp.XUpSpawn, monstrSp.YUpSpawn + wayCounter - 1);
-        else
-            DrawEnemy(monstrSp.XUpSpawn, monstrSp.YUpSpawn + wayCounter);
+        DrawEnemy(monstrSp.XUpSpawn, monstrSp.YUpSpawn + wayCounter - 1);
         Health--;
     }
 

@@ -40,6 +40,7 @@ namespace Console_Game
         static bool bulletOnLeftWay;
         static bool bulletOnUpWay; 
         static bool bulletOnRightWay;
+        static bool bulletKilled = false;
 
         static BasicStats.Direction direction = BasicStats.Direction.Up;
 
@@ -62,6 +63,11 @@ namespace Console_Game
         {
             InitializePlayer();
             SpawnerEnemy1();
+            if (bulletKilled) 
+            { 
+                enemies1.Dequeue();
+                bulletKilled = false;
+            }
             Thread.Sleep(frameRate);
         }
 
@@ -69,9 +75,12 @@ namespace Console_Game
         {
             if (random.Next(0, spawnIntervals[0]) == spawnNumber )
                 enemies1.Enqueue(new Enemy1());
-            foreach (var enemy1 in enemies1)
-                if (enemy1.isDead == false) 
-                    InitializeEnemy(enemy1);
+            IEnumerator<Enemy1> enumerator = enemies1.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                if (!enumerator.Current.isDead)
+                    InitializeEnemy(enumerator.Current);
+            }
         }
         static void AnimateBullet(Coordinates coords)
         {
@@ -167,13 +176,13 @@ namespace Console_Game
                     enemy1.GetDamaged();
                     bulletUpDestroyed = true;
                 }
-                if (enemy1Turn && !YcoordEngaged[enemy1.EngagedYcoord + 1] && !enemy1.reachedBox)
+                if (enemy1Turn && !YcoordEngaged[enemy1.EngagedYcoord + 1])
                 {
                     enemy1.AnimateEnemy(direction); 
                     YcoordEngaged[enemy1.EngagedYcoord] = true;
                     YcoordEngaged[enemy1.EngagedYcoord - 1] = false;
                 }
-                else if (enemy1Turn && enemy1.reachedBox)
+                else if (enemy1Turn)
                     enemy1.isAttacking = true;
                 monsterRate++;
             }
@@ -183,12 +192,11 @@ namespace Console_Game
         
         static void Enemy1Die(Enemy1 enemy1)
         {
-            if (enemy1.reachedBox) 
-                CleanOrWriteBullet(mSpawn.XUpSpawn, YBoxRoof-1, new String(' ', 23));
-            else 
-                enemy1.CleanOrWriteSymbol(mSpawn.XUpSpawn, mSpawn.YUpSpawn + enemy1.wayCounter - 1, new String(' ', 23));
+            enemy1.CleanOrWriteSymbol(mSpawn.XUpSpawn, mSpawn.YUpSpawn + enemy1.wayCounter - 1, new String(' ', 23));
+            enemy1.ClearWeb(mSpawn.XUpSpawn, mSpawn.YUpSpawn + enemy1.wayCounter - 1, new String(' ', 7), YBoxRoof);
             YcoordEngaged[enemy1.EngagedYcoord] = false;
             enemy1.isDead = true;
+            bulletKilled = true;
         }
         
         static void InitializePlayer()
@@ -198,7 +206,7 @@ namespace Console_Game
                 player.SetColor("White");
                 player.DrawBox(new Coordinates(
                     new int[] {XCoordPlayer - 9, XCoordPlayer + 16, XCoordPlayer - 1, XCoordPlayer + 11}, 
-                    new int[] { FieldSizeY - 3, FieldSizeY - 10,FieldSizeY - 5, FieldSizeY - 6}));
+                    new int[] { FieldSizeY - 3, FieldSizeY - 11,FieldSizeY - 5, FieldSizeY - 6}));
                 player.DrawCreature();
                 AnimateBullet(new Coordinates(
                     new int[] { 34, 62, XCoordPlayer + 8},
@@ -214,6 +222,15 @@ namespace Console_Game
             Console.SetBufferSize(FieldSizeX, FieldSizeY);
             Console.CursorVisible = false;
             DrawBorders();
+            player.DrawPlayer(false, new Coordinates(
+                new int[] { XCoordPlayer, XCoordPlayer + 1, XCoordPlayer + 2 },
+                new int[] { YCoordPlayer, YCoordPlayer + 1, YCoordPlayer + 2 }),
+                    new DrawHero
+                    {
+                        Head = @"(▀ ͜ʖ▀) *======8",
+                        BodyNGun = @"|   | -- //",
+                        Legs = @"/ \"
+                    });
         }
 
         static void DrawBorders()
@@ -235,7 +252,7 @@ namespace Console_Game
                 }
                  
             }
-        
+            
         }
 
         
