@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BasicStats.cs" />
+    <Compile Include="Constants.cs" />
     <Compile Include="Coordinates.cs" />
     <Compile Include="Enemy1.cs" />
     <Compile Include="IHitable.cs" />

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 public class Enemy1 : BasicStats, IHitable
 {
     public int wayCounter = 0;
-    public int Speed { get; set; } = 20;
+    public int Speed { get; set; } = 40;
     public int Health { get; set; } = 5;
 
     public Direction direction = Direction.Up;
@@ -56,21 +56,22 @@ public class Enemy1 : BasicStats, IHitable
     }
     public void ClearWeb(int xCoord, int yCoord, string space, int roofCoord)
     {
-        for(int i = yCoord; i  < roofCoord; i++)
+        for (int i = yCoord; i < roofCoord; i++)
         {
             CleanOrWriteSymbol(xCoord, i, space);
         }
     }
     public bool CheckOnHit(int bulletCoord, int enemyCoord)
     {
-        return bulletCoord == enemyCoord - 1;
+        return bulletCoord <= enemyCoord - 1;
     }
 
-    public void GetDamaged()
+    public async void GetDamaged()
     {
+        int yCoordSpider = monstrSp.YUpSpawn + wayCounter - 1;
         SetColor("Red");
-        DrawEnemy(monstrSp.XUpSpawn, monstrSp.YUpSpawn + wayCounter - 1);
-        Health--;
+        DrawEnemy(monstrSp.XUpSpawn, yCoordSpider);
+        await Task.Run(()=> Health--);
     }
 
     public void CleanOrWriteSymbol(int coordx, int coordy, string symb)
@@ -78,8 +79,5 @@ public class Enemy1 : BasicStats, IHitable
         Console.SetCursorPosition(coordx, coordy);
         Console.Write(symb);
     }
-    public void CheckOnEnemyInFront(int xCoord, int yCoord)
-    {
-
-    }
+    
 }

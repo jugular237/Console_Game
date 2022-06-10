@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Threading;
+using static Constants;
 
 public sealed class Player:BasicStats, IHitable
 {
     public const int XCoord = 45;
     public const int YCoord = 25;
-    private const int LeftBorderPlayer = XCoord - 5;
-    private const int LeftBorderBox = XCoord - 9;
+    
 
     public int Health { get; set; } = 20;
 
@@ -32,8 +32,8 @@ public sealed class Player:BasicStats, IHitable
         {
             ClearSpace(LeftBorderPlayer, YCoord, LeftBorderBox);
             DrawPlayer(true, new Coordinates(
-                new int[] { XCoord - 1, XCoord, XCoord + 2, XCoord+6},
-                new int[] { YCoord, YCoord + 1, YCoord + 2 }), 
+                new int[] { playerX1Up, playerX2Up, playerX3Up, playerX4Up},
+                new int[] { playerY1Up, playerY2Up, playerY3Up }), 
                     new DrawHero
                     {
                         OverHead2 = @"||",
@@ -47,8 +47,8 @@ public sealed class Player:BasicStats, IHitable
         {
             ClearSpace(LeftBorderPlayer, YCoord, LeftBorderBox);
             DrawPlayer(false, new Coordinates(
-                new int[] { XCoord - 9, XCoord - 5, XCoord + 2, },
-                new int[] { YCoord, YCoord + 1, YCoord + 2 }),
+                new int[] { playerX1Left, playerX2Left, playerX3Left },
+                new int[] { playerY1Left, playerY2Left, playerY3Left }),
                     new DrawHero
                     {
                         Head = @"8======* (▀ ͜ʖ▀)",
@@ -60,8 +60,8 @@ public sealed class Player:BasicStats, IHitable
         {
             ClearSpace(LeftBorderPlayer, YCoord, LeftBorderBox);
             DrawPlayer(false, new Coordinates(
-                new int[] { XCoord, XCoord + 1, XCoord + 2 },
-                new int[] {YCoord, YCoord + 1, YCoord + 2 }), 
+                new int[] { playerX1Right, playerX2Right, playerX3Right },
+                new int[] { playerY1Right, playerY2Right, playerY3Right }), 
                     new DrawHero
                     {
                         Head = @"(▀ ͜ʖ▀) *======8",
@@ -93,9 +93,9 @@ public sealed class Player:BasicStats, IHitable
     {
         if (hasOverHead)
         {
-            for(int i = 1; i< 5; i++)
+            for(int i = 1; i < overheadLines ; i++)
             {
-                if(i == 4)
+                if(i == overheadLines - 1)
                     CleanOrWriteSymbol(coords.xCoords[3], coords.yCoords[0] - i, @drawhero.OverHead1);
                 else
                 CleanOrWriteSymbol(coords.xCoords[3], coords.yCoords[0] - i, @drawhero.OverHead2);
@@ -109,8 +109,8 @@ public sealed class Player:BasicStats, IHitable
     private void ClearSpace(int xCoord, int yCoord, int leftBordBox)
     {
         int counter = 4;
-        string[] spaces = { new String(' ', 18), new String(' ', 18), new String(' ', 18),
-            new String(' ', 18),  new String(' ', 25) , new String(' ', 18), new String(' ', 8)};
+        string[] spaces = { new String(' ', space1Lngth), new String(' ', space1Lngth), new String(' ', space1Lngth),
+            new String(' ', space1Lngth),  new String(' ', space2Lngth) , new String(' ', space1Lngth), new String(' ', space3Lngth)};
         foreach(var space in spaces)
         {
             if (counter == 0)
@@ -130,8 +130,8 @@ public sealed class Player:BasicStats, IHitable
     {
         SetColor("Red");
         DrawBox(new Coordinates(
-            new int[] { XCoord - 9, XCoord + 16, XCoord - 1, XCoord + 11 },
-            new int[] { YCoord + 2, YCoord - 6, YCoord, YCoord - 1 }));
+            new int[] { X1Box, X2Box, X3Box, X4Box },
+            new int[] { Y1Box, Y2Box, Y3Box, Y4Box }));
         SetColor("White");
     }
     public void DrawBox(Coordinates coords)
