@@ -24,4 +24,15 @@ public abstract class BasicStats
         Type type = typeof(ConsoleColor);
         Console.ForegroundColor = (ConsoleColor)Enum.Parse(type, color);
     }
+
+    public virtual void CleanOrWriteSymbol(int coordx, int coordy, string symb)
+    {
+        Console.SetCursorPosition(coordx, coordy);
+        Console.Write(symb);
+    }
+
+    public bool CheckOnHit(int bulletCoord, int enemyCoord)
+    {
+        return bulletCoord == enemyCoord - 1;
+    }
 }

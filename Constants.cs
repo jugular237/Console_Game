@@ -13,6 +13,7 @@ public class Constants
 
     public const int frameRate = 14;
     public const int spawnNumber = 3;
+    public const int spawnNumber1 = 5;
 
     public const int XLeftBorder = 1;
     public const int XRightBorder = FieldSizeX - 1;
@@ -43,6 +44,8 @@ public class Constants
 
     public const int clearSpiderLngth= 23;
     public const int clearWebLngth = 7;
+
+    public const int clearZombieLngth = 6;
 
     public const int LeftBorderPlayer = XCoord - 5;
     public const int LeftBorderBox = XCoord - 9;
@@ -77,6 +80,10 @@ public class Constants
     public const int space2Lngth = 25;
     public const int space3Lngth = 8;
 
+    public const int zSpace1Lngth = 5;
+    public const int zSpace2Lngth = 6;
+    public const int zSpace3Lngth = 3;
+
     public const int X1Box = XCoord - 9;
     public const int X2Box = XCoord + 16;
     public const int X3Box = XCoord - 1;
@@ -87,5 +94,11 @@ public class Constants
     public const int Y3Box = YCoord;
     public const int Y4Box = YCoord - 1;
 
+    public const int zombieX1Right = 2;
+   
+    public const int zombieY1Right = YCoordPlayer - 1;
+    public const int zombieY2Right = YCoordPlayer;
+    public const int zombieY3Right = YCoordPlayer + 1;
 
+    public const int blinkRate = 5;
 }

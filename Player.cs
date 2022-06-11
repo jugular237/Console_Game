@@ -9,7 +9,7 @@ public sealed class Player:BasicStats, IHitable
     public const int YCoord = 25;
     
 
-    public int Health { get; set; } = 20;
+    public int Health { get; set; } = 7;
 
     public Direction direction;
 
@@ -84,11 +84,7 @@ public sealed class Player:BasicStats, IHitable
         return currentDirection;
     }
 
-    public static void CleanOrWriteSymbol(int coordx, int coordy, string symb)
-    {
-        Console.SetCursorPosition(coordx, coordy);
-        Console.Write(symb);
-    }
+    
     public void DrawPlayer(bool hasOverHead, Coordinates coords, DrawHero drawhero)
     {
         if (hasOverHead)
@@ -125,6 +121,7 @@ public sealed class Player:BasicStats, IHitable
     {
         ChangeColor();
         await Task.Run(() => Health--);
+        //SetColor("White");
     }
     public void ChangeColor()
     {
@@ -132,7 +129,6 @@ public sealed class Player:BasicStats, IHitable
         DrawBox(new Coordinates(
             new int[] { X1Box, X2Box, X3Box, X4Box },
             new int[] { Y1Box, Y2Box, Y3Box, Y4Box }));
-        SetColor("White");
     }
     public void DrawBox(Coordinates coords)
     {
@@ -155,10 +151,7 @@ public sealed class Player:BasicStats, IHitable
         }
     }
 
-    public bool CheckOnHit(int enemyCoord, int playerBoxCoord)
-    {
-        return enemyCoord + 1 == playerBoxCoord;
-    }
+    
 }
 
 

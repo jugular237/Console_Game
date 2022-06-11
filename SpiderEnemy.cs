@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public class Enemy1 : BasicStats, IHitable
+public class SpiderEnemy : BasicStats, IHitable
 {
     public int wayCounter = 0;
     public int Speed { get; set; } = 40;
@@ -22,18 +22,7 @@ public class Enemy1 : BasicStats, IHitable
     public override void DrawCreature()
     {
         
-        if(direction == Direction.Right)
-        {
-            DrawEnemy(monstrSp.XLeftSpawn, monstrSp.YLeftSpawn);
-        }
-        else if(direction == Direction.Left)
-        {
-            DrawEnemy(monstrSp.XRightSpawn, monstrSp.YRightSpawn);
-        }
-        else if(direction == Direction.Up)
-        {
-            DrawEnemy(monstrSp.XUpSpawn, monstrSp.YUpSpawn);
-        }
+        
     }
 
     public void DrawEnemy(int coordX, int coordY)
@@ -41,10 +30,9 @@ public class Enemy1 : BasicStats, IHitable
         CleanOrWriteSymbol(coordX, coordY, @"/╲/\╭ºo8oº╮/\╱\");
     }
 
-    public void AnimateEnemy(Direction directn)
+    public void AnimateEnemy()
     {
-
-        if(directn == Direction.Up && wayCounter < wayLength-1)
+        if(wayCounter < wayLength - 1)
         {
             DrawEnemy(monstrSp.XUpSpawn, monstrSp.YUpSpawn + wayCounter);
             CleanOrWriteSymbol(monstrSp.XUpSpawn, monstrSp.YUpSpawn + wayCounter - 1, "      |        ");
@@ -61,10 +49,7 @@ public class Enemy1 : BasicStats, IHitable
             CleanOrWriteSymbol(xCoord, i, space);
         }
     }
-    public bool CheckOnHit(int bulletCoord, int enemyCoord)
-    {
-        return bulletCoord <= enemyCoord - 1;
-    }
+    
 
     public async void GetDamaged()
     {
@@ -72,12 +57,9 @@ public class Enemy1 : BasicStats, IHitable
         SetColor("Red");
         DrawEnemy(monstrSp.XUpSpawn, yCoordSpider);
         await Task.Run(()=> Health--);
+        SetColor("White");
     }
 
-    public void CleanOrWriteSymbol(int coordx, int coordy, string symb)
-    {
-        Console.SetCursorPosition(coordx, coordy);
-        Console.Write(symb);
-    }
+    
     
 }

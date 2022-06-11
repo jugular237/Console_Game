@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
 using static Constants;
+using static BasicStats;
 
 
 namespace Console_Game
@@ -15,8 +13,11 @@ namespace Console_Game
 
         static MonstersSpawns mSpawn;
 
-        static Queue<Enemy1> enemies1 = new Queue<Enemy1>();
-        static List<int> spawnIntervals = new List<int>() { 80 };
+        static Queue<SpiderEnemy> SpiderEnemies = new Queue<SpiderEnemy>();
+        static Queue<Zombie> Zombies = new Queue<Zombie>();
+
+        static List<int> spawnIntervals = new List<int>() { 300, 100 };
+        
 
         static Random random = new Random();
 
@@ -30,18 +31,23 @@ namespace Console_Game
         private static int BulletcounterRight = 0;
         private static int BulletcounterUp = 0;
         private static int BulletSkipUpCounter = 0;
+        private static int BulletSkipLeftCounter = 0;
+        private static int BulletSkipRightCounter = 0;
 
         static bool bulletOnLeftWay;
         static bool bulletOnUpWay;
         static bool bulletOnRightWay;
-        static bool bulletKilled = false;
 
-        static BasicStats.Direction direction = BasicStats.Direction.Up;
+        static int WhiteDealy = 0;
 
-        static int monsterRate = 0;
+        static int spiderRate = 0;
+        static int zombieRate = 0;
         static bool bulletUpDestroyed = false;
-        public static bool[] YcoordEngaged = new bool[Enemy1.wayLength + 3];
+        static bool bulletLeftDestroyed = false;
+        static bool bulletRightDestroyed = false;
 
+        public static bool[] YcoordEngaged = new bool[SpiderEnemy.wayLength + 3];
+        public static bool[] XcoordEngaged = new bool[Zombie.wayLength + 6];
 
         static void Main(string[] args)
         {
@@ -57,51 +63,51 @@ namespace Console_Game
 
         static void Update()
         {
-            SpawnerEnemy1();
+            
+            SpawnerSpiders();
+            SpawnerZombies();
             InitializePlayer();
-            BulletKilled();
             Thread.Sleep(frameRate);
         }
-        static void BulletKilled()
-        {
-            if (bulletKilled)
-            {
-                bulletKilled = false;
-            }
-        }
+        
 
-        static  void SpawnerEnemy1()
+        static  void SpawnerSpiders()
         {
-            if (random.Next(0, spawnIntervals[0]) == Constants.spawnNumber )
-                enemies1.Enqueue(new Enemy1());
-            IEnumerator<Enemy1> enumerator = enemies1.GetEnumerator();
+            if (random.Next(0, spawnIntervals[0]) == spawnNumber )
+                SpiderEnemies.Enqueue(new SpiderEnemy());
+            IEnumerator<SpiderEnemy> enumerator = SpiderEnemies.GetEnumerator();
             while (enumerator.MoveNext())
             {
                 if (!enumerator.Current.isDead)
-                    InitializeEnemy(enumerator.Current);
+                    InitializeSpider(enumerator.Current);
             }
         }
+
+        static void SpawnerZombies()
+        {
+            if (random.Next(0, spawnIntervals[1]) == spawnNumber1)
+                Zombies.Enqueue(new Zombie());
+            IEnumerator<Zombie> enumerator = Zombies.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                if (!enumerator.Current.isDead)
+                    InitializeZombie(enumerator.Current);
+            }
+        }
+
         static void AnimateBullet(Coordinates coords)
         {
-            bool checkOnLeft = player.direction == BasicStats.Direction.Left;
-            bool checkOnRight = player.direction == BasicStats.Direction.Right;
-            bool checkOnUp = player.direction == BasicStats.Direction.Up;
+            bool checkOnLeft = player.direction == Direction.Left;
+            bool checkOnRight = player.direction == Direction.Right;
+            bool checkOnUp = player.direction == Direction.Up;
             bool bulletOnLeftEnd = BulletcounterLeft < coords.xCoords[0];
             bool bulletOnRightEnd = BulletcounterRight + coords.xCoords[1] < bulletRightRange;
             bool bulletOnUpEnd = BulletcounterUp < coords.yCoords[2];
             if ((checkOnLeft || bulletOnLeftWay) && bulletOnLeftEnd)
             {
                 bulletOnLeftWay = true;
-                CleanOrWriteBullet(coords.xCoords[0] - BulletcounterLeft, coords.yCoords[0], "-");
-                CleanOrWriteBullet((coords.xCoords[0] + 1) - BulletcounterLeft, coords.yCoords[0], " ");
-                if (BulletcounterLeft == coords.xCoords[0] - 1)
-                {
-                    BulletcounterLeft = 0;
-                    CleanOrWriteBullet(XLeftBorder, coords.yCoords[0], " ");
-                    bulletOnLeftWay = false;
-                }
-                else
-                    BulletcounterLeft++;
+                AnimateBulletLeft(coords);
+                BulletHitZombie();
             }
             if ((checkOnRight || bulletOnRightWay) && bulletOnRightEnd)
             {
@@ -121,21 +127,30 @@ namespace Console_Game
             {
                 bulletOnUpWay = true;
                 AnimateBulletUp(coords);
-                BulletHit();
+                BulletHitSpider();
             }
         }
         static void AnimateBulletUp(Coordinates coords)
         {
+            var direct = Direction.Up;
             if (bulletUpDestroyed)
-                BulletDestroyed(ref BulletcounterUp, ref BulletSkipUpCounter, ref bulletOnUpWay, ref bulletUpDestroyed, coords);
+                BulletDestroyed(ref BulletcounterUp, ref BulletSkipUpCounter, ref bulletOnUpWay, ref bulletUpDestroyed, coords.yCoords[2] - 1);
             else if (!bulletUpDestroyed)
-                BulletOnWay(ref BulletcounterUp, ref BulletSkipUpCounter, ref bulletOnUpWay, coords);
+                BulletOnWay(ref BulletcounterUp, ref BulletSkipUpCounter, ref bulletOnUpWay, coords, "'", direct);
+        }
+        static void AnimateBulletLeft(Coordinates coords)
+        {
+            var direct = Direction.Left;
+            if (bulletLeftDestroyed)
+                BulletDestroyed(ref BulletcounterLeft, ref BulletSkipLeftCounter, ref bulletOnLeftWay, ref bulletLeftDestroyed, coords.yCoords[0] - 1);
+            else if (!bulletLeftDestroyed)
+                BulletOnWay(ref BulletcounterLeft, ref BulletSkipLeftCounter, ref bulletOnLeftWay, coords, "-", direct);
         }
         static void BulletDestroyed(ref int bullCounter, ref int skipCounter, ref bool onWay,
-            ref bool destroyed, Coordinates coords)
+            ref bool destroyed, int border)
         {
             bullCounter = 0;
-            if (skipCounter == coords.yCoords[2] - 1)
+            if (skipCounter == border)
             {
                 skipCounter = 0;
                 onWay = false;
@@ -144,16 +159,17 @@ namespace Console_Game
             if (onWay)
                 skipCounter++;
         }
-        static void BulletOnWay(ref int bullCounter, ref int skipCounter, ref bool onWay, Coordinates coords)
+        static void BulletOnWay(ref int bullCounter, ref int skipCounter, ref bool onWay, Coordinates coords, string bullt, Direction dir)
         {
-            CleanOrWriteBullet(coords.xCoords[2], coords.yCoords[2] - bullCounter, "'");
-            CleanOrWriteBullet(coords.xCoords[2], (coords.yCoords[2] + 1) - bullCounter, " ");
-            if (bullCounter == coords.yCoords[2] - 1)
+            if (dir == Direction.Up) 
             {
-                bullCounter = 0;
-                CleanOrWriteBullet(coords.xCoords[2], YTopBorder, " ");
-                onWay = false;
-                skipCounter = 0;
+                DrawBulletUp(coords.xCoords[2], coords.yCoords[2], bullCounter, bullt);
+                ClearLastBulletUp(ref bullCounter, coords, ref onWay, ref skipCounter);
+            }
+            else if (dir == Direction.Left)
+            {
+                DrawBulletLeft(coords.xCoords[0], coords.yCoords[0], bullCounter, bullt);
+                ClearLastBulletLeft(ref bullCounter, coords, ref onWay, ref skipCounter);
             }
             if (onWay)
             {
@@ -161,16 +177,47 @@ namespace Console_Game
                 skipCounter++;
             }
         }
+
+        static void DrawBulletUp(int coordX, int coordY, int bullCounter, string bullt)
+        {
+            CleanOrWriteBullet(coordX, coordY - bullCounter, bullt);
+            CleanOrWriteBullet(coordX, (coordY + 1) - bullCounter, " ");
+        }
+        static void DrawBulletLeft(int coordX, int coordY, int bullCounter, string bullt)
+        {
+            CleanOrWriteBullet(coordX - bullCounter, coordY, bullt);
+            CleanOrWriteBullet(coordX + 1 - bullCounter, coordY, " ");
+        }
+        static void ClearLastBulletUp(ref int bullCounter, Coordinates coords, ref bool onWay, ref int skipCounter)
+        {
+            if (bullCounter == coords.yCoords[2] - 1)
+            {
+                bullCounter = 0;
+                onWay = false;
+                skipCounter = 0;
+                CleanOrWriteBullet(coords.xCoords[2], YTopBorder, " ");
+            }
+        }
+        static void ClearLastBulletLeft(ref int bullCounter, Coordinates coords, ref bool onWay, ref int skipCounter)
+        {
+            if (bullCounter == coords.xCoords[0] - 1)
+            {
+                bullCounter = 0;
+                onWay = false;
+                skipCounter = 0;
+                CleanOrWriteBullet(XLeftBorder, coords.yCoords[0], " ");
+            }
+        }
         static void CleanOrWriteBullet(int coordx, int coordy, string symb)
         {
             Console.SetCursorPosition(coordx, coordy);
             Console.Write(symb);
         }  
-        static void BulletHit()
+        static void BulletHitSpider()
         {
-            if(enemies1.Count > 0)
+            if(SpiderEnemies.Count > 0)
             {
-                Enemy1 firstSpider = enemies1.Peek();
+                SpiderEnemy firstSpider = SpiderEnemies.Peek();
                 int bulletCoord = YBoxRoof - BulletcounterUp + 1;
                 int spiderCoord = mSpawn.YUpSpawn + firstSpider.wayCounter;
                 if (firstSpider.CheckOnHit(bulletCoord, spiderCoord))
@@ -178,59 +225,124 @@ namespace Console_Game
                     firstSpider.GetDamaged();
                     if (firstSpider.Health <= 0)
                     {
-                        Enemy1Die(firstSpider);
-                        enemies1.Dequeue();
+                        SpiderDie(firstSpider);
+                        SpiderEnemies.Dequeue();
                     }
 
                 }
             }
         }
-        static void InitializeEnemy(Enemy1 enemy1)
+        static void BulletHitZombie()
         {
-            enemy1.isAttacking = false;
-            bool playerUnderHit = player.CheckOnHit(mSpawn.YUpSpawn + enemy1.wayCounter, YBoxRoof);
-            bool enemyUnderHit = enemy1.CheckOnHit(YBoxRoof - BulletcounterUp, mSpawn.YUpSpawn + enemy1.wayCounter);
-            bool enemy1Turn = monsterRate % enemy1.Speed == 0;
-            if (enemy1.Health > 0)
+            if (Zombies.Count > 0)
             {
-                if (playerUnderHit && enemy1Turn)
+                Zombie firstZomb = Zombies.Peek();
+                int bulletCoord = leftBorderBox - BulletcounterUp + 1;
+                int spiderCoord = mSpawn.XLeftSpawn + firstZomb.wayCounter;
+                if (firstZomb.CheckOnHit(bulletCoord, spiderCoord))
+                {
+                    firstZomb.GetDamaged();
+                    if (firstZomb.Health <= 0)
+                    {
+                        ZombieDie(firstZomb);
+                        Zombies.Dequeue();
+                    }
+                }
+            }
+        }
+        static void InitializeSpider(SpiderEnemy spiderEnemy)
+        {
+            spiderEnemy.isAttacking = false;
+            bool playerUnderHit = player.CheckOnHit(mSpawn.YUpSpawn + spiderEnemy.wayCounter, YBoxRoof);
+            bool enemyUnderHit = spiderEnemy.CheckOnHit(YBoxRoof - BulletcounterUp, mSpawn.YUpSpawn + spiderEnemy.wayCounter);
+            bool spiderTurn = spiderRate % spiderEnemy.Speed == 0;
+            if (spiderEnemy.Health > 0)
+            {
+                if (playerUnderHit && spiderTurn)
                 {
                     player.GetDamaged();
                 }
                 if (enemyUnderHit)
                 {
-                    enemy1.GetDamaged();
+                    spiderEnemy.GetDamaged();
                     bulletUpDestroyed = true;
                 }
-                if (enemy1Turn && !YcoordEngaged[enemy1.EngagedYcoord + 1])
+                if (spiderTurn && !YcoordEngaged[spiderEnemy.EngagedYcoord + 1])
                 {
-                    enemy1.AnimateEnemy(direction); 
-                    YcoordEngaged[enemy1.EngagedYcoord] = true;
-                    YcoordEngaged[enemy1.EngagedYcoord - 1] = false;
+                    spiderEnemy.AnimateEnemy(); 
+                    YcoordEngaged[spiderEnemy.EngagedYcoord] = true;
+                    YcoordEngaged[spiderEnemy.EngagedYcoord - 1] = false;
                 }
-                else if (enemy1Turn)
-                    enemy1.isAttacking = true;
-                monsterRate++;
+                else if (spiderTurn)
+                    spiderEnemy.isAttacking = true;
+                spiderRate++;
             }
             else
-                Enemy1Die(enemy1);
+                SpiderDie(spiderEnemy);
         }
-        
-        static void Enemy1Die(Enemy1 enemy1)
+        static void InitializeZombie(Zombie zombie)
         {
-            int spiderCoord = mSpawn.YUpSpawn + enemy1.wayCounter - 1;
-            enemy1.CleanOrWriteSymbol(mSpawn.XUpSpawn, spiderCoord, new String(' ', clearSpiderLngth));
-            enemy1.ClearWeb(mSpawn.XUpSpawn, spiderCoord, new String(' ', clearWebLngth), YBoxRoof);
-            YcoordEngaged[enemy1.EngagedYcoord] = false;
-            enemy1.isDead = true;
-            bulletKilled = true;
+            zombie.isAttacking = false;
+            bool playerUnderHit = player.CheckOnHit(mSpawn.XLeftSpawn + zombie.wayCounter+3, leftBorderBox);
+            bool enemyUnderHit = zombie.CheckOnHit(leftBorderBox - BulletcounterLeft, mSpawn.XLeftSpawn + zombie.wayCounter);
+            bool zombieTurn = zombieRate % zombie.Speed == 0;
+            if (zombie.Health > 0)
+            {
+                if (playerUnderHit && zombieTurn)
+                {
+                    player.GetDamaged();
+                }
+                if (enemyUnderHit)
+                {
+                    zombie.GetDamaged();
+                    bulletLeftDestroyed = true;
+                }
+                if (zombieTurn && !XcoordEngaged[zombie.EngagedXcoord + 5])
+                {
+                    zombie.AnimateEnemy(Direction.Left);
+                    for (int i = 0; i < 5; i++)
+                    {
+                        XcoordEngaged[zombie.EngagedXcoord + i] = true;
+                    }
+                    XcoordEngaged[zombie.EngagedXcoord - 1] = false;
+                }
+                else if (zombieTurn)
+                    zombie.isAttacking = true;
+                zombieRate++;
+            }
+            else
+                ZombieDie(zombie);
         }
-        
+
+        static void SpiderDie(SpiderEnemy spider)
+        {
+            int spiderCoord = mSpawn.YUpSpawn + spider.wayCounter - 1;
+            spider.CleanOrWriteSymbol(mSpawn.XUpSpawn, spiderCoord, new String(' ', clearSpiderLngth));
+            spider.ClearWeb(mSpawn.XUpSpawn, spiderCoord, new String(' ', clearWebLngth), YBoxRoof);
+            YcoordEngaged[spider.EngagedYcoord] = false;
+            spider.isDead = true;
+            if(spawnIntervals[0] > 80)
+                spawnIntervals[0] -= 5;
+        }
+
+        static void ZombieDie(Zombie zombie)
+        {
+            int zombieCoord = mSpawn.XLeftSpawn + zombie.wayCounter - 1;
+            zombie.CleanOrWriteSymbol(zombieCoord, mSpawn.YLeftSpawn, new String(' ', clearZombieLngth));
+            for(int i =0; i < 5; i++)
+            {
+                XcoordEngaged[zombie.EngagedXcoord + i] = false;
+            }
+            zombie.isDead = true;
+            if (spawnIntervals[0] > 70)
+                spawnIntervals[0] -= 10;
+        }
+
         static void InitializePlayer()
         {
             if (player.Health > 0)
             {
-                player.SetColor("White");
+                PlayerBlink();
                 player.DrawBox(new Coordinates(
                     new int[] {leftBorderBox, rightBorderBox, X1roofHole, X2roofHole}, 
                     new int[] { bottomBorderBox, topBorderBox, Y2WallHole, Y1WallHole }));
@@ -242,7 +354,15 @@ namespace Console_Game
             else
                 player.isDead = true;
         }
-
+        static void PlayerBlink()
+        {
+            if (WhiteDealy == blinkRate)
+            {
+                player.SetColor("White");
+                WhiteDealy = 0;
+            }
+            WhiteDealy++;
+        }
         static void InitializeField()
         {
             Console.SetWindowSize(FieldSizeX, FieldSizeY);
