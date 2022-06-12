@@ -11,7 +11,7 @@ public class Constants
     public const int FieldSizeX = 95;
     public const int FieldSizeY = 30;
 
-    public const int frameRate = 14;
+    public const int frameRate = 13;
     public const int spawnNumber = 3;
     public const int spawnNumber1 = 5;
 
@@ -101,4 +101,6 @@ public class Constants
     public const int zombieY3Right = YCoordPlayer + 1;
 
     public const int blinkRate = 5;
+
+    public const int zombieLngth = 5;
 }

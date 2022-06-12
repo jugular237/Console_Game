@@ -60,7 +60,7 @@ public class Zombie : BasicStats, IHitable
                 new DrawZombie 
                 {
                     Head = @"(+_+)",
-                    Body = @"|  |--",
+                    Body = @"| |--",
                     Legs = @"/ \"
                 });
         await Task.Run(() => Health--);
