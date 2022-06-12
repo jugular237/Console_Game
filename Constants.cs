@@ -46,6 +46,7 @@ public class Constants
     public const int clearWebLngth = 7;
 
     public const int clearZombieLngth = 6;
+    public const int clearHookerLngth = 10;
 
     public const int LeftBorderPlayer = XCoord - 5;
     public const int LeftBorderBox = XCoord - 9;
@@ -103,4 +104,10 @@ public class Constants
     public const int blinkRate = 5;
 
     public const int zombieLngth = 5;
+    public const int hookerLngth = 9;
+    public const int decSpiderSpwnInterv = 5;
+    public const int decZombieSpwnInterv = 10;
+    public const int decHookerSpwnInterv = 10;
+
+    public const int hookerHight = 10;
 }

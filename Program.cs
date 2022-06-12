@@ -15,9 +15,10 @@ namespace Console_Game
 
         static Queue<SpiderEnemy> SpiderEnemies = new Queue<SpiderEnemy>();
         static Queue<Zombie> Zombies = new Queue<Zombie>();
+        static Queue<Hooker> Hooker = new Queue<Hooker>();
 
-        static List<int> spawnIntervals = new List<int>() { 300, 400 };
-        
+        static List<int> startSpawnIntervals = new List<int>() { 300, 400, 300 };
+        static List<int> minSpawnIntervals = new List<int>() { 120, 100, 200 };
 
         static Random random = new Random();
 
@@ -42,6 +43,7 @@ namespace Console_Game
 
         static int spiderRate = 0;
         static int zombieRate = 0;
+        static int hookerRate = 0;
         static bool bulletUpDestroyed = false;
         static bool bulletLeftDestroyed = false;
         static bool bulletRightDestroyed = false;
@@ -63,6 +65,7 @@ namespace Console_Game
         static void Update()
         {
             SpawnerSpiders();
+            SpawnerHooker();
             SpawnerZombies();
             InitializePlayer();
             Thread.Sleep(frameRate);
@@ -71,7 +74,7 @@ namespace Console_Game
 
         static  void SpawnerSpiders()
         {
-            if (random.Next(0, spawnIntervals[0]) == spawnNumber )
+            if (random.Next(0, startSpawnIntervals[0]) == spawnNumber )
                 SpiderEnemies.Enqueue(new SpiderEnemy());
             IEnumerator<SpiderEnemy> enumerator = SpiderEnemies.GetEnumerator();
             while (enumerator.MoveNext())
@@ -83,13 +86,25 @@ namespace Console_Game
 
         static void SpawnerZombies()
         {
-            if (random.Next(0, spawnIntervals[1]) == spawnNumber1)
+            if (random.Next(0, startSpawnIntervals[1]) == spawnNumber1)
                 Zombies.Enqueue(new Zombie());
             IEnumerator<Zombie> enumerator = Zombies.GetEnumerator();
             while (enumerator.MoveNext())
             {
                 if (!enumerator.Current.isDead)
                     InitializeZombie(enumerator.Current);
+            }
+        }
+
+        static void SpawnerHooker()
+        {
+            if (random.Next(0, startSpawnIntervals[1]) == spawnNumber1)
+                Hooker.Enqueue(new Hooker());
+            IEnumerator<Hooker> enumerator = Hooker.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                if (!enumerator.Current.isDead)
+                    InitializeHooker(enumerator.Current);
             }
         }
 
@@ -295,10 +310,10 @@ namespace Console_Game
                     zombie.GetDamaged();
                     bulletLeftDestroyed = true;
                 }
-                if (zombieTurn && !XcoordEngaged[zombie.EngagedXcoord + 5])
+                if (zombieTurn && !XcoordEngaged[zombie.EngagedXcoord + zombieLngth])
                 {
                     zombie.AnimateEnemy(Direction.Left);
-                    for (int i = 0; i < 5; i++)
+                    for (int i = 0; i < zombieLngth; i++)
                     {
                         XcoordEngaged[zombie.EngagedXcoord + i] = true;
                     }
@@ -311,7 +326,39 @@ namespace Console_Game
             else
                 ZombieDie(zombie);
         }
-
+        static void InitializeHooker(Hooker hooker)
+        {
+            hooker.isAttacking = false;
+            bool playerUnderHit = player.CheckOnHit(mSpawn.XLeftSpawn + hooker.wayCounter + hookerLngth, leftBorderBox);
+            bool enemyUnderHit = hooker.CheckOnHit(leftBorderBox - BulletcounterLeft, mSpawn.XLeftSpawn + hooker.wayCounter + hookerLngth);
+            bool hookerTurn = hookerRate % hooker.Speed == 0;
+            if (hooker.Health > 0)
+            {
+                if (playerUnderHit && hookerTurn)
+                {
+                    player.GetDamaged();
+                }
+                if (enemyUnderHit)
+                {
+                    hooker.GetDamaged();
+                    bulletLeftDestroyed = true;
+                }
+                if (hookerTurn && !XcoordEngaged[hooker.EngagedXcoord + hookerLngth])
+                {
+                    hooker.AnimateEnemy(Direction.Left);
+                    for (int i = 0; i < hookerLngth; i++)
+                    {
+                        XcoordEngaged[hooker.EngagedXcoord + i] = true;
+                    }
+                    XcoordEngaged[hooker.EngagedXcoord - 1] = false;
+                }
+                else if (hookerTurn)
+                    hooker.isAttacking = true;
+                hookerRate++;
+            }
+            else
+                HookerDie(hooker);
+        }
         static void SpiderDie(SpiderEnemy spider)
         {
             int spiderCoord = mSpawn.YUpSpawn + spider.wayCounter - 1;
@@ -319,8 +366,8 @@ namespace Console_Game
             spider.ClearWeb(mSpawn.XUpSpawn, spiderCoord, new String(' ', clearWebLngth), YBoxRoof);
             YcoordEngaged[spider.EngagedYcoord] = false;
             spider.isDead = true;
-            if(spawnIntervals[0] > 120)
-                spawnIntervals[0] -= 5;
+            if(startSpawnIntervals[0] > minSpawnIntervals[0])
+                startSpawnIntervals[0] -= decSpiderSpwnInterv;
         }
 
         static void ZombieDie(Zombie zombie)
@@ -334,8 +381,28 @@ namespace Console_Game
                 XcoordEngaged[zombie.EngagedXcoord + i] = false;
             }
             zombie.isDead = true;
-            if (spawnIntervals[0] > 90)
-                spawnIntervals[0] -= 10;
+            if (startSpawnIntervals[1] > minSpawnIntervals[1])
+                startSpawnIntervals[1] -= decZombieSpwnInterv;
+        }
+        static void HookerDie(Hooker hooker)
+        {
+            int hookerCoord = mSpawn.XLeftSpawn + hooker.wayCounter - 1;
+            for(int i = 0; i < hookerHight; i++)
+            {
+                if (i == 4) 
+                { 
+                    hooker.CleanOrWriteSymbol(hookerCoord, YBottomBorder - hookerHight + i, new String(' ', 16));
+                    continue;
+                }
+                hooker.CleanOrWriteSymbol(hookerCoord, YBottomBorder - hookerHight + i, new String(' ', 11));
+            }
+            for (int i = 0; i < hookerLngth; i++)
+            {
+                XcoordEngaged[hooker.EngagedXcoord + i] = false;
+            }
+            hooker.isDead = true;
+            if (startSpawnIntervals[2] > minSpawnIntervals[2])
+                startSpawnIntervals[2] -= decHookerSpwnInterv;
         }
 
         static void InitializePlayer()
