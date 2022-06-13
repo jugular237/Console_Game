@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Constants;
 
 
 public class SpiderEnemy : BasicStats, IHitable
@@ -10,6 +11,7 @@ public class SpiderEnemy : BasicStats, IHitable
     public int wayCounter = 0;
     public int Speed { get; set; } = 40;
     public int Health { get; set; } = 5;
+
 
     public Direction direction = Direction.Up;
 
@@ -60,6 +62,36 @@ public class SpiderEnemy : BasicStats, IHitable
         SetColor("White");
     }
 
-    
-    
+    public new bool CheckOnHit(int bulletCoord, int enemyCoord)
+    {
+        return bulletCoord == enemyCoord - 1;
+    }
+    //public void BulletHitSpider<SpiderEnemy>(Queue<SpiderEnemy> spEnemy, int bullCoord, int spiderCoord)
+    //{
+    //    if (spEnemy.Count > 0)
+    //    {
+    //        SpiderEnemy firstSpider = spEnemy.Peek();
+    //        if (firstSpider.CheckOnHit(bullCoord, spiderCoord))
+    //        {
+    //            firstSpider.GetDamaged();
+    //            if (firstSpider.Health <= 0)
+    //            {
+    //                SpiderDie(firstSpider);
+    //                spEnemy.Dequeue();
+    //            }
+
+    //        }
+    //    }
+    //}
+    //public void SpiderDie(int YspiderCoord, int XspiderCoord,
+    //    bool[] YcoordEngaged, int swpnInterv, int minSpwnInterv)
+    //{
+    //    CleanOrWriteSymbol(XspiderCoord, YspiderCoord, new String(' ', clearSpiderLngth));
+    //    ClearWeb(XspiderCoord, YspiderCoord, new String(' ', clearWebLngth), YBoxRoof);
+    //    YcoordEngaged[EngagedYcoord] = false;
+    //    isDead = true;
+    //    if (swpnInterv > minSpwnInterv)
+    //        swpnInterv -= decSpiderSpwnInterv;
+    //}
+
 }

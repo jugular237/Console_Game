@@ -13,7 +13,8 @@ public class Constants
 
     public const int frameRate = 13;
     public const int spawnNumber = 3;
-    public const int spawnNumber1 = 5;
+    public const int spawnNumber1 = 4;
+    public const int spawnNumber2 = 5;
 
     public const int XLeftBorder = 1;
     public const int XRightBorder = FieldSizeX - 1;
@@ -105,6 +106,7 @@ public class Constants
 
     public const int zombieLngth = 5;
     public const int hookerLngth = 9;
+    public const int entireHookerLngth = 14;
     public const int decSpiderSpwnInterv = 5;
     public const int decZombieSpwnInterv = 10;
     public const int decHookerSpwnInterv = 10;

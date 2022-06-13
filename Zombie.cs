@@ -8,14 +8,14 @@ using static Constants;
 public class Zombie : BasicStats, IHitable
 {
     public int wayCounter = 0;
-    public int Speed { get; set; } = 15;
+    public int Speed { get; set; } = 10;
     public int Health { get; set; } = 5;
 
     public MonstersSpawns monstrSp;
 
-    public const int wayLength = XCoord - 13;
+    public const int wayLength = 27;
 
-    public int EngagedXcoord = 0;
+    public int EngagedXcoord = FieldSizeX;
 
     
     public override void DrawCreature()
@@ -25,22 +25,20 @@ public class Zombie : BasicStats, IHitable
     }
     public void AnimateEnemy(Direction directn)
     {
-        if (wayCounter < wayLength - 1)
+        if (wayCounter < wayLength)
         {
-            int xCoordZombie = monstrSp.XLeftSpawn + wayCounter - 1;
-            DrawEnemy(xCoordZombie+1, monstrSp.YLeftSpawn,
+            int xCoordZombie = monstrSp.XRightSpawn - wayCounter;
+            DrawEnemy(xCoordZombie, monstrSp.YRightSpawn,
                 new DrawZombie
                 {
                     Head = @"(+_+)",
-                    Body = @"| |--",
-                    Legs = @"/ \"
+                    Body = @"--| |",
+                    Legs = @"  / \"
                 });
-            ClearSpace(xCoordZombie, monstrSp.YLeftSpawn-1);
-            EngagedXcoord = monstrSp.XLeftSpawn + wayCounter;
-            if (wayCounter != wayLength - 1)
-                wayCounter++;
-
-        }
+            ClearSpace(xCoordZombie + zombieLngth, monstrSp.YRightSpawn-1);
+            EngagedXcoord = monstrSp.XRightSpawn - wayCounter;
+            wayCounter++;
+         }
     }
 
     private void ClearSpace(int xCoord, int yCoord)
@@ -54,14 +52,14 @@ public class Zombie : BasicStats, IHitable
     } 
     public async void GetDamaged()
     {
-        int xCoordZombie = monstrSp.XLeftSpawn + wayCounter - 1;
+        int xCoordZombie = monstrSp.XRightSpawn - wayCounter + 1;
         SetColor("Red");
-        DrawEnemy(xCoordZombie, monstrSp.YLeftSpawn,
+        DrawEnemy(xCoordZombie, monstrSp.YRightSpawn,
                 new DrawZombie 
                 {
                     Head = @"(+_+)",
-                    Body = @"| |--",
-                    Legs = @"/ \"
+                    Body = @"--| |",
+                    Legs = @"  / \"
                 });
         await Task.Run(() => Health--);
         SetColor("White");
@@ -74,7 +72,10 @@ public class Zombie : BasicStats, IHitable
         CleanOrWriteSymbol(coordX, coordY + 1, drZombie.Legs);
     }
 
-    
+    public new bool CheckOnHit(int bulletCoord, int enemyCoord)
+    {
+        return bulletCoord-1 == enemyCoord;
+    }
 
     public struct DrawZombie
     {

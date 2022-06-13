@@ -121,7 +121,7 @@ public sealed class Player:BasicStats, IHitable
     {
         ChangeColor();
         await Task.Run(() => Health--);
-        //SetColor("White");
+        
     }
     public void ChangeColor()
     {

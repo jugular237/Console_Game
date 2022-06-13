@@ -7,9 +7,9 @@ public struct MonstersSpawns
 
     public int YLeftSpawn { get => 26; }
 
-    public int XRightSpawn { get => 87; }
+    public int XRightSpawn { get => 88; }
 
-    public int YRightSpawn { get => 23; }
+    public int YRightSpawn { get => 26; }
     
     public int XUpSpawn { get => 45; }
 

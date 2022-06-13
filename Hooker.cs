@@ -8,7 +8,7 @@ using static Constants;
 public class Hooker : BasicStats, IHitable
 {
     public int wayCounter = 0;
-    public int Speed { get; set; } = 50;
+    public int Speed { get; set; } = 40;
     public int Health { get; set; } = 10;
 
     public MonstersSpawns monstrSp;
@@ -27,7 +27,7 @@ public class Hooker : BasicStats, IHitable
       @"   |_   |__"
     };
 
-    public const int wayLength = XCoord - 13;
+    public const int wayLength = XCoord -10 -entireHookerLngth;
 
     public int EngagedXcoord = 0;
 
