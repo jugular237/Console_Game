@@ -46,6 +46,7 @@
     <Compile Include="BasicStats.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Coordinates.cs" />
+    <Compile Include="Game.cs" />
     <Compile Include="Hooker.cs" />
     <Compile Include="ResultsMenu.cs" />
     <Compile Include="SpiderEnemy.cs" />

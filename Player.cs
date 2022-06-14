@@ -11,7 +11,7 @@ public sealed class Player:BasicStats, IHitable
 
     public int Health { get; set; } = 7;
 
-    public Direction direction;
+    public Direction direction = Direction.None;
 
     private static Player PlayerInstance;
     private Player()

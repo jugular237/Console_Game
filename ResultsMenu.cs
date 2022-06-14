@@ -42,7 +42,8 @@ class ResultsMenu : BasicStats
         if(timeToWrite > ReadRecords().Item2)
             Console.WriteLine("NEW Time RECORD!");
         File.WriteAllText(Path, $"{killsToWrite} {timeToWrite}");
-        Console.WriteLine($"\n kills record : {killsToWrite}\n time record : {timeToWrite}");
+        Console.WriteLine($"\n kills record : {killsToWrite}\n time record : {timeToWrite}" +
+            $"\nPress space to restart...\nPress any other key to exit...");
     }
 }
 
