@@ -47,6 +47,7 @@
     <Compile Include="Constants.cs" />
     <Compile Include="Coordinates.cs" />
     <Compile Include="Hooker.cs" />
+    <Compile Include="ResultsMenu.cs" />
     <Compile Include="SpiderEnemy.cs" />
     <Compile Include="IHitable.cs" />
     <Compile Include="MostersSpawns.cs" />

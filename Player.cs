@@ -16,7 +16,7 @@ public sealed class Player:BasicStats, IHitable
     private static Player PlayerInstance;
     private Player()
     {
-
+        
     }
 
     public static Player GetInstance()
@@ -25,7 +25,7 @@ public sealed class Player:BasicStats, IHitable
             PlayerInstance = new Player();
         return PlayerInstance;
     }
-    public override void DrawCreature()
+    public void DrawCreature()
     {
         direction = ReadMovement(direction);
         if (direction == Direction.Up)

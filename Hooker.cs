@@ -32,12 +32,8 @@ public class Hooker : BasicStats, IHitable
     public int EngagedXcoord = 0;
 
 
-    public override void DrawCreature()
-    {
-
-
-    }
-    public void AnimateEnemy(Direction directn)
+    
+    public void AnimateEnemy()
     {
         if (wayCounter < wayLength - 1)
         {

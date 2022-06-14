@@ -21,11 +21,7 @@ public class SpiderEnemy : BasicStats, IHitable
 
     public int EngagedYcoord = 0;
     
-    public override void DrawCreature()
-    {
-        
-        
-    }
+    
 
     public void DrawEnemy(int coordX, int coordY)
     {

@@ -17,7 +17,7 @@ public abstract class BasicStats
         Left,
         Right,
     }
-    public abstract void DrawCreature();
+    
 
     public virtual void SetColor(string color)
     {

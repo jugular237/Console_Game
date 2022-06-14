@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using static Constants;
 using static BasicStats;
+using System.Diagnostics;
 
 
 namespace Console_Game
@@ -10,15 +11,18 @@ namespace Console_Game
     class Program
     {
         static Player player = Player.GetInstance();
+        static ResultsMenu resMenu = new ResultsMenu();
 
         static MonstersSpawns mSpawn;
+
+        static Stopwatch sw = new Stopwatch();
 
         static Queue<SpiderEnemy> SpiderEnemies = new Queue<SpiderEnemy>();
         static Queue<Zombie> Zombies = new Queue<Zombie>();
         static Queue<Hooker> Hooker = new Queue<Hooker>();
 
-        static List<int> startSpawnIntervals = new List<int>() { 300, 800, 300 };
-        static List<int> minSpawnIntervals = new List<int>() { 120, 100, 200 };
+        static List<int> startSpawnIntervals = new List<int>() { 400, 300, 800 };
+        static List<int> minSpawnIntervals = new List<int>() { 120, 150, 400 };
 
         static Random random = new Random();
 
@@ -47,6 +51,7 @@ namespace Console_Game
         static bool bulletUpDestroyed = false;
         static bool bulletLeftDestroyed = false;
         static bool bulletRightDestroyed = false;
+        static int killsCounter = 0;
 
         public static bool[] YcoordEngaged = new bool[SpiderEnemy.wayLength + 3];
         public static bool[] XcoordEngaged = new bool[FieldSizeX];
@@ -54,10 +59,14 @@ namespace Console_Game
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.Unicode;
+            sw.Start();
             InitializeField();
             while (!player.isDead)
                 Update();
+            sw.Stop();
+            Console.Clear();
             Console.WriteLine("YOU LOST");
+            resMenu.WriteNewRecords(killsCounter, sw.ElapsedMilliseconds/1000);
             Console.ReadKey();
         }
 
@@ -132,17 +141,6 @@ namespace Console_Game
             }
             if ((checkOnRight || bulletOnRightWay) && bulletOnRightEnd)
             {
-                //bulletOnRightWay = true;
-                //CleanOrWriteBullet(coords.xCoords[1] + BulletcounterRight, coords.yCoords[1], "-");
-                //CleanOrWriteBullet((coords.xCoords[1] - 1) + BulletcounterRight, coords.yCoords[1], " ");
-                //if (BulletcounterRight + coords.xCoords[1] == bulletRightRange-1)
-                //{
-                //    BulletcounterRight = 0;
-                //    CleanOrWriteBullet(bulletRightRange-1, coords.yCoords[1], " ");
-                //    bulletOnRightWay = false;
-                //}
-                //else
-                //    BulletcounterRight++;
                 bulletOnRightWay = true;
                 AnimateBulletRight(coords);
                 BulletHitZombie();
@@ -282,6 +280,7 @@ namespace Console_Game
                     {
                         SpiderDie(firstSpider);
                         SpiderEnemies.Dequeue();
+                        killsCounter++;
                     }
 
                 }
@@ -301,6 +300,7 @@ namespace Console_Game
                     {
                         ZombieDie(firstZomb);
                         Zombies.Dequeue();
+                        killsCounter++;
                     }
                 }
             }
@@ -319,6 +319,7 @@ namespace Console_Game
                     {
                         HookerDie(firsthooker);
                         Hooker.Dequeue();
+                        killsCounter++;
                     }
                 }
             }
@@ -374,7 +375,7 @@ namespace Console_Game
                 }
                 if (zombieTurn && !XcoordEngaged[zombie.EngagedXcoord - zombieLngth])
                 {
-                    zombie.AnimateEnemy(Direction.Right);
+                    zombie.AnimateEnemy();
                     for (int i = 0; i < zombieLngth; i++)
                     {
                         XcoordEngaged[zombie.EngagedXcoord - i] = true;
@@ -407,7 +408,7 @@ namespace Console_Game
                 }
                 if (hookerTurn && !XcoordEngaged[hooker.EngagedXcoord + entireHookerLngth])
                 {
-                    hooker.AnimateEnemy(Direction.Left);
+                    hooker.AnimateEnemy();
                     for (int i = 0; i < entireHookerLngth; i++)
                     {
                         XcoordEngaged[hooker.EngagedXcoord + i] = true;

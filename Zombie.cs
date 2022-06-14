@@ -8,7 +8,7 @@ using static Constants;
 public class Zombie : BasicStats, IHitable
 {
     public int wayCounter = 0;
-    public int Speed { get; set; } = 10;
+    public int Speed { get; set; } = 15;
     public int Health { get; set; } = 5;
 
     public MonstersSpawns monstrSp;
@@ -18,12 +18,8 @@ public class Zombie : BasicStats, IHitable
     public int EngagedXcoord = FieldSizeX;
 
     
-    public override void DrawCreature()
-    {
-       
-        
-    }
-    public void AnimateEnemy(Direction directn)
+    
+    public void AnimateEnemy()
     {
         if (wayCounter < wayLength)
         {
