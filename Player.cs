@@ -7,8 +7,6 @@ public sealed class Player:BasicStats, IHitable
 {
     public const int XCoord = 45;
     public const int YCoord = 25;
-    
-
     public int Health { get; set; } = 7;
 
     public Direction direction = Direction.None;

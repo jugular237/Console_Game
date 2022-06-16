@@ -62,32 +62,6 @@ public class SpiderEnemy : BasicStats, IHitable
     {
         return bulletCoord == enemyCoord - 1;
     }
-    //public void BulletHitSpider<SpiderEnemy>(Queue<SpiderEnemy> spEnemy, int bullCoord, int spiderCoord)
-    //{
-    //    if (spEnemy.Count > 0)
-    //    {
-    //        SpiderEnemy firstSpider = spEnemy.Peek();
-    //        if (firstSpider.CheckOnHit(bullCoord, spiderCoord))
-    //        {
-    //            firstSpider.GetDamaged();
-    //            if (firstSpider.Health <= 0)
-    //            {
-    //                SpiderDie(firstSpider);
-    //                spEnemy.Dequeue();
-    //            }
-
-    //        }
-    //    }
-    //}
-    //public void SpiderDie(int YspiderCoord, int XspiderCoord,
-    //    bool[] YcoordEngaged, int swpnInterv, int minSpwnInterv)
-    //{
-    //    CleanOrWriteSymbol(XspiderCoord, YspiderCoord, new String(' ', clearSpiderLngth));
-    //    ClearWeb(XspiderCoord, YspiderCoord, new String(' ', clearWebLngth), YBoxRoof);
-    //    YcoordEngaged[EngagedYcoord] = false;
-    //    isDead = true;
-    //    if (swpnInterv > minSpwnInterv)
-    //        swpnInterv -= decSpiderSpwnInterv;
-    //}
+    
 
 }

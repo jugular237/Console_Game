@@ -16,7 +16,7 @@ class Game: BasicStats
     private Queue<Zombie> Zombies = new Queue<Zombie>();
     private Queue<Hooker> Hooker = new Queue<Hooker>();
 
-    private List<int> startSpawnIntervals = new List<int>() { 400, 300, 800 };
+    private List<int> startSpawnIntervals = new List<int>() { 400, 1, 1 };
     private List<int> minSpawnIntervals = new List<int>() { 120, 150, 400 };
 
     private Random random = new Random();
@@ -64,7 +64,7 @@ class Game: BasicStats
         SpawnerHooker();
         SpawnerZombies();
         InitializePlayer();
-        Thread.Sleep(frameRate);
+        Thread.Sleep(sleepTime);
     }
 
 
@@ -313,16 +313,13 @@ class Game: BasicStats
     }
     public void InitializeSpider(SpiderEnemy spiderEnemy)
     {
-        spiderEnemy.isAttacking = false;
-        bool playerUnderHit = player.CheckOnHit(mSpawn.YUpSpawn + spiderEnemy.wayCounter + zombieLngth, YBoxRoof);
+        bool playerUnderHit = player.CheckOnHit(mSpawn.YUpSpawn + spiderEnemy.wayCounter, YBoxRoof);
         bool enemyUnderHit = spiderEnemy.CheckOnHit(YBoxRoof - BulletcounterUp, mSpawn.YUpSpawn + spiderEnemy.wayCounter);
         bool spiderTurn = spiderRate % spiderEnemy.Speed == 0;
         if (spiderEnemy.Health > 0)
         {
             if (playerUnderHit && spiderTurn)
-            {
                 player.GetDamaged();
-            }
             if (enemyUnderHit)
             {
                 spiderEnemy.GetDamaged();
@@ -334,18 +331,13 @@ class Game: BasicStats
                 YcoordEngaged[spiderEnemy.EngagedYcoord] = true;
                 YcoordEngaged[spiderEnemy.EngagedYcoord - 1] = false;
             }
-            else if (spiderTurn)
-                spiderEnemy.isAttacking = true;
             spiderRate++;
         }
         else
-        {
             SpiderDie(spiderEnemy);
-        }
     }
     public void InitializeZombie(Zombie zombie)
     {
-        zombie.isAttacking = false;
         bool playerUnderHit = player.CheckOnHit(mSpawn.XRightSpawn - zombie.wayCounter - 1, rightBorderBox);
         bool enemyUnderHit = zombie.CheckOnHit(rightBorderBox + BulletcounterRight, mSpawn.XRightSpawn - zombie.wayCounter);
         bool zombieTurn = zombieRate % zombie.Speed == 0;
@@ -369,8 +361,7 @@ class Game: BasicStats
                 }
                 XcoordEngaged[zombie.EngagedXcoord + 1] = false;
             }
-            else if (zombieTurn)
-                zombie.isAttacking = true;
+            
             zombieRate++;
         }
         else
@@ -378,7 +369,6 @@ class Game: BasicStats
     }
     public void InitializeHooker(Hooker hooker)
     {
-        hooker.isAttacking = false;
         bool playerUnderHit = player.CheckOnHit(mSpawn.XLeftSpawn + hooker.wayCounter + entireHookerLngth, leftBorderBox);
         bool enemyUnderHit = hooker.CheckOnHit(leftBorderBox - BulletcounterLeft, mSpawn.XLeftSpawn + hooker.wayCounter + hookerLngth);
         bool hookerTurn = hookerRate % hooker.Speed == 0;
@@ -402,8 +392,6 @@ class Game: BasicStats
                 }
                 XcoordEngaged[hooker.EngagedXcoord - 1] = false;
             }
-            else if (hookerTurn)
-                hooker.isAttacking = true;
             hookerRate++;
         }
         else
@@ -436,15 +424,16 @@ class Game: BasicStats
     }
     public void HookerDie(Hooker hooker)
     {
-        int hookerCoord = mSpawn.XLeftSpawn + hooker.wayCounter - 1;
+        int xhookerCoord = mSpawn.XLeftSpawn + hooker.wayCounter-1;
+        int yhookerCoord = YBottomBorder - hookerHight;
         for (int i = 0; i < hookerHight; i++)
         {
-            if (i == 4)
+            if (i == hookHight)
             {
-                hooker.CleanOrWriteSymbol(hookerCoord, YBottomBorder - hookerHight + i, new String(' ', 16));
+                hooker.CleanOrWriteSymbol(xhookerCoord, yhookerCoord + i, new String(' ', clearHookerLngth1));
                 continue;
             }
-            hooker.CleanOrWriteSymbol(hookerCoord, YBottomBorder - hookerHight + i, new String(' ', 11));
+            hooker.CleanOrWriteSymbol(xhookerCoord, yhookerCoord + i, new String(' ', clearHookerLngth));
         }
         for (int i = 0; i < hookerLngth; i++)
         {

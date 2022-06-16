@@ -11,7 +11,7 @@ public class Constants
     public const int FieldSizeX = 95;
     public const int FieldSizeY = 30;
 
-    public const int frameRate = 13;
+    public const int sleepTime = 13;
     public const int spawnNumber = 3;
     public const int spawnNumber1 = 4;
     public const int spawnNumber2 = 5;
@@ -47,7 +47,8 @@ public class Constants
     public const int clearWebLngth = 7;
 
     public const int clearZombieLngth = 6;
-    public const int clearHookerLngth = 10;
+    public const int clearHookerLngth = 11;
+    public const int clearHookerLngth1 = 16;
 
     public const int LeftBorderPlayer = XCoord - 5;
     public const int LeftBorderBox = XCoord - 9;
@@ -110,6 +111,6 @@ public class Constants
     public const int decSpiderSpwnInterv = 5;
     public const int decZombieSpwnInterv = 10;
     public const int decHookerSpwnInterv = 10;
-
+    public const int hookHight = 4;
     public const int hookerHight = 10;
 }
