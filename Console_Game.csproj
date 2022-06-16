@@ -43,22 +43,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BasicStats.cs" />
-    <Compile Include="Constants.cs" />
-    <Compile Include="Coordinates.cs" />
-    <Compile Include="Game.cs" />
-    <Compile Include="Hooker.cs" />
-    <Compile Include="ResultsMenu.cs" />
-    <Compile Include="SpiderEnemy.cs" />
-    <Compile Include="IHitable.cs" />
-    <Compile Include="MostersSpawns.cs" />
-    <Compile Include="Player.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="Code\BasicStats.cs" />
+    <Compile Include="Code\Constants.cs" />
+    <Compile Include="Code\Coordinates.cs" />
+    <Compile Include="Code\Game.cs" />
+    <Compile Include="Code\Hooker.cs" />
+    <Compile Include="Code\IHitable.cs" />
+    <Compile Include="Code\MostersSpawns.cs" />
+    <Compile Include="Code\Player.cs" />
+    <Compile Include="Code\Program.cs" />
+    <Compile Include="Code\ResultsMenu.cs" />
+    <Compile Include="Code\SpiderEnemy.cs" />
+    <Compile Include="Code\Zombie.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Zombie.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
