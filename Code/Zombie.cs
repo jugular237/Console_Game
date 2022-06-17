@@ -70,7 +70,7 @@ public class Zombie : BasicStats, IHitable
 
     public new bool CheckOnHit(int bulletCoord, int enemyCoord)
     {
-        return bulletCoord-1 == enemyCoord;
+        return bulletCoord == enemyCoord + 2;
     }
 
     public struct DrawZombie

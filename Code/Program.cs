@@ -10,12 +10,9 @@ namespace Console_Game
     {
         static Player player = Player.GetInstance();
         static ResultsMenu resMenu = new ResultsMenu();
-
         static Stopwatch sw = new Stopwatch();
 
         
-        
-
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.Unicode;
@@ -38,7 +35,6 @@ namespace Console_Game
             ConsoleKey key = Console.ReadKey(true).Key;
             if (key == ConsoleKey.Spacebar)
                 RestartGame();
-                
         }
         static void RestartGame()
         {

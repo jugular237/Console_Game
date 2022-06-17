@@ -16,7 +16,7 @@ class Game: BasicStats
     private Queue<Zombie> Zombies = new Queue<Zombie>();
     private Queue<Hooker> Hooker = new Queue<Hooker>();
 
-    private List<int> startSpawnIntervals = new List<int>() { 400, 1, 1 };
+    private List<int> startSpawnIntervals = new List<int>() { 400, 400, 800 };
     private List<int> minSpawnIntervals = new List<int>() { 120, 150, 400 };
 
     private Random random = new Random();
@@ -70,7 +70,8 @@ class Game: BasicStats
 
     public void SpawnerSpiders()
     {
-        if (random.Next(0, startSpawnIntervals[0]) == spawnNumber)
+        bool toSpawn = random.Next(0, startSpawnIntervals[0]) == spawnNumber;
+        if (toSpawn)
             SpiderEnemies.Enqueue(new SpiderEnemy());
         IEnumerator<SpiderEnemy> enumerator = SpiderEnemies.GetEnumerator();
         while (enumerator.MoveNext())
@@ -82,7 +83,8 @@ class Game: BasicStats
 
     public void SpawnerZombies()
     {
-        if (FreeSpawner(zombieLngth) && random.Next(0, startSpawnIntervals[1]) == spawnNumber1)
+        bool toSpawn = random.Next(0, startSpawnIntervals[1]) == spawnNumber;
+        if (FreeSpawner(zombieLngth, mSpawn.XRightSpawn - zombieLngth) && toSpawn)
             Zombies.Enqueue(new Zombie());
         IEnumerator<Zombie> enumerator = Zombies.GetEnumerator();
         while (enumerator.MoveNext())
@@ -91,18 +93,17 @@ class Game: BasicStats
                 InitializeZombie(enumerator.Current);
         }
     }
-    public bool FreeSpawner(int length)
+    public bool FreeSpawner(int length, int pozition)
     {
-        for (int i = 0; i < length; i++)
-        {
-            if (!XcoordEngaged[i])
-                return true;
-        }
-        return false;
+        for (int i = pozition; i < pozition + length; i++)
+            if (XcoordEngaged[i])
+                return false;
+        return true;
     }
     public void SpawnerHooker()
     {
-        if (FreeSpawner(hookerLngth) && random.Next(0, startSpawnIntervals[2]) == spawnNumber2)
+        bool toSpawn = random.Next(0, startSpawnIntervals[2]) == spawnNumber2;
+        if (FreeSpawner(hookerLngth, mSpawn.XLeftSpawn) && toSpawn)
             Hooker.Enqueue(new Hooker());
         IEnumerator<Hooker> enumerator = Hooker.GetEnumerator();
         while (enumerator.MoveNext())
@@ -160,7 +161,7 @@ class Game: BasicStats
     {
         var direct = Direction.Right;
         if (bulletRightDestroyed)
-            BulletDestroyed(ref BulletcounterRight, ref BulletSkipRightCounter, ref bulletOnRightWay, ref bulletRightDestroyed, coords.xCoords[1]);
+            BulletDestroyed(ref BulletcounterRight, ref BulletSkipRightCounter, ref bulletOnRightWay, ref bulletRightDestroyed, coords.xCoords[0]);
         else if (!bulletRightDestroyed)
             BulletOnWay(ref BulletcounterRight, ref BulletSkipRightCounter, ref bulletOnRightWay, coords, "-", direct);
     }
@@ -255,7 +256,7 @@ class Game: BasicStats
     }
     public void BulletHitSpider()
     {
-        if (SpiderEnemies.Count > 0)
+        try
         {
             SpiderEnemy firstSpider = SpiderEnemies.Peek();
             int bulletCoord = YBoxRoof - BulletcounterUp + 1;
@@ -267,15 +268,18 @@ class Game: BasicStats
                 {
                     SpiderDie(firstSpider);
                     SpiderEnemies.Dequeue();
-                    killsCounter++;
                 }
 
             }
         }
+        catch
+        {
+
+        }
     }
     public void BulletHitZombie()
     {
-        if (Zombies.Count > 0)
+        try 
         {
             Zombie firstZomb = Zombies.Peek();
             int bulletCoord = rightBorderBox + BulletcounterUp - 1;
@@ -287,15 +291,19 @@ class Game: BasicStats
                 {
                     ZombieDie(firstZomb);
                     Zombies.Dequeue();
-                    killsCounter++;
+                    
                 }
             }
+        }
+        catch
+        {
+
         }
     }
     public void BulletHitHooker()
     {
-        if (Hooker.Count > 0)
-        {
+        try 
+        { 
             Hooker firsthooker = Hooker.Peek();
             int bulletCoord = leftBorderBox - BulletcounterUp + 1;
             int zombCoord = mSpawn.XLeftSpawn - firsthooker.wayCounter;
@@ -306,9 +314,11 @@ class Game: BasicStats
                 {
                     HookerDie(firsthooker);
                     Hooker.Dequeue();
-                    killsCounter++;
                 }
             }
+        }
+        catch{
+
         }
     }
     public void InitializeSpider(SpiderEnemy spiderEnemy)
@@ -334,12 +344,17 @@ class Game: BasicStats
             spiderRate++;
         }
         else
+        {
             SpiderDie(spiderEnemy);
+            killsCounter++;
+        }
     }
     public void InitializeZombie(Zombie zombie)
     {
-        bool playerUnderHit = player.CheckOnHit(mSpawn.XRightSpawn - zombie.wayCounter - 1, rightBorderBox);
-        bool enemyUnderHit = zombie.CheckOnHit(rightBorderBox + BulletcounterRight, mSpawn.XRightSpawn - zombie.wayCounter);
+        int XzombieCoord = mSpawn.XRightSpawn - zombie.wayCounter - 1;
+        bool playerUnderHit = player.CheckOnHit(XzombieCoord, rightBorderBox);
+        bool enemyUnderHit = zombie.CheckOnHit(rightBorderBox + BulletcounterRight, XzombieCoord);
+        bool enemyUnderHit1 = zombie.CheckOnHit(rightBorderBox + BulletcounterRight, XzombieCoord + 1);
         bool zombieTurn = zombieRate % zombie.Speed == 0;
         if (zombie.Health > 0)
         {
@@ -347,7 +362,7 @@ class Game: BasicStats
             {
                 player.GetDamaged();
             }
-            if (enemyUnderHit)
+            if (enemyUnderHit || enemyUnderHit1)
             {
                 zombie.GetDamaged();
                 bulletRightDestroyed = true;
@@ -361,11 +376,13 @@ class Game: BasicStats
                 }
                 XcoordEngaged[zombie.EngagedXcoord + 1] = false;
             }
-            
-            zombieRate++;
+             zombieRate++;
         }
         else
+        {
             ZombieDie(zombie);
+            killsCounter++;
+        }
     }
     public void InitializeHooker(Hooker hooker)
     {
@@ -395,7 +412,11 @@ class Game: BasicStats
             hookerRate++;
         }
         else
+        {
             HookerDie(hooker);
+            
+            killsCounter++;
+        }
     }
     public void SpiderDie(SpiderEnemy spider)
     {

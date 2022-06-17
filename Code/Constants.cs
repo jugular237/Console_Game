@@ -3,6 +3,7 @@
 
 public class Constants
 {
+    
     private const int XCoordPlayer = Player.XCoord;
     private const int YCoordPlayer = Player.YCoord;
 
@@ -22,7 +23,7 @@ public class Constants
     public const int YBottomBorder = FieldSizeY - 2;
     public const int YBoxRoof = FieldSizeY - 10;
 
-    public const int bulletRightRange = XRightBorder - 1;
+    public const int bulletRightRange = 93;
     public const int bottomBorder = FieldSizeY - 1;
     public const int leftBorderBox = XCoordPlayer - 9;
     public const int rightBorderBox = XCoordPlayer + 16;
@@ -108,9 +109,9 @@ public class Constants
     public const int zombieLngth = 5;
     public const int hookerLngth = 9;
     public const int entireHookerLngth = 14;
-    public const int decSpiderSpwnInterv = 5;
-    public const int decZombieSpwnInterv = 10;
-    public const int decHookerSpwnInterv = 10;
+    public const int decSpiderSpwnInterv = 10;
+    public const int decZombieSpwnInterv = 20;
+    public const int decHookerSpwnInterv = 20;
     public const int hookHight = 4;
     public const int hookerHight = 10;
 }

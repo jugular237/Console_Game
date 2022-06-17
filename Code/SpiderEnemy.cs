@@ -58,10 +58,7 @@ public class SpiderEnemy : BasicStats, IHitable
         SetColor("White");
     }
 
-    public new bool CheckOnHit(int bulletCoord, int enemyCoord)
-    {
-        return bulletCoord == enemyCoord - 1;
-    }
+    
     
 
 }
