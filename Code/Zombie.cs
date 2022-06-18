@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using static Constants;
 
@@ -70,7 +67,8 @@ public class Zombie : BasicStats, IHitable
 
     public new bool CheckOnHit(int bulletCoord, int enemyCoord)
     {
-        return bulletCoord == enemyCoord + 2;
+        int addCoord = 2;
+        return bulletCoord == enemyCoord + addCoord;
     }
 
     public struct DrawZombie

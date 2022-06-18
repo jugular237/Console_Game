@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using System.Threading;
 using static Constants;
 
 public sealed class Player:BasicStats, IHitable
@@ -119,7 +118,6 @@ public sealed class Player:BasicStats, IHitable
     {
         ChangeColor();
         await Task.Run(() => Health--);
-        
     }
     public void ChangeColor()
     {

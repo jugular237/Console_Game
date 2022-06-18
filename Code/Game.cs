@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
-using System.Diagnostics;
 using static Constants;
 
 
@@ -48,6 +46,13 @@ class Game: BasicStats
     private bool bulletRightDestroyed = false;
     public static int killsCounter = 0;
 
+   
+    public delegate void InitializeEnemy<Enemy>(Enemy enemy);
+
+    public InitializeEnemy<SpiderEnemy> spiderDelegate;
+    public InitializeEnemy<Zombie> zombieDelegate;
+    public InitializeEnemy<Hooker> hookerDelegate;
+    
     public bool[] YcoordEngaged = new bool[SpiderEnemy.wayLength + 3];
     public bool[] XcoordEngaged = new bool[FieldSizeX];
 
@@ -60,39 +65,33 @@ class Game: BasicStats
     }
     public void Update()
     {
-        SpawnerSpiders();
-        SpawnerHooker();
-        SpawnerZombies();
-        InitializePlayer();
+        GatherMethods(); 
         Thread.Sleep(sleepTime);
     }
+    
+    private void GatherMethods()
+    {
+        spiderDelegate = InitializeSpider;
+        zombieDelegate = InitializeZombie;
+        hookerDelegate = InitializeHooker;
+        SpawnerEnemies<SpiderEnemy>(SpiderEnemies, new SpiderEnemy(), spiderDelegate);
+        SpawnerEnemies<Zombie>(Zombies, new Zombie(), zombieDelegate);
+        SpawnerEnemies<Hooker>(Hooker, new Hooker(), hookerDelegate);
+        InitializePlayer();
+    }
 
-
-    public void SpawnerSpiders()
+    public void SpawnerEnemies<Enemy>(Queue<Enemy> enemies, Enemy enemyClass, InitializeEnemy<Enemy> initialize)
     {
         bool toSpawn = random.Next(0, startSpawnIntervals[0]) == spawnNumber;
         if (toSpawn)
-            SpiderEnemies.Enqueue(new SpiderEnemy());
-        IEnumerator<SpiderEnemy> enumerator = SpiderEnemies.GetEnumerator();
-        while (enumerator.MoveNext())
+            enemies.Enqueue(enemyClass);
+        foreach(var foe in enemies)
         {
-            if (!enumerator.Current.isDead)
-                InitializeSpider(enumerator.Current);
+            initialize.Invoke(foe);
         }
     }
 
-    public void SpawnerZombies()
-    {
-        bool toSpawn = random.Next(0, startSpawnIntervals[1]) == spawnNumber;
-        if (FreeSpawner(zombieLngth, mSpawn.XRightSpawn - zombieLngth) && toSpawn)
-            Zombies.Enqueue(new Zombie());
-        IEnumerator<Zombie> enumerator = Zombies.GetEnumerator();
-        while (enumerator.MoveNext())
-        {
-            if (!enumerator.Current.isDead)
-                InitializeZombie(enumerator.Current);
-        }
-    }
+    
     public bool FreeSpawner(int length, int pozition)
     {
         for (int i = pozition; i < pozition + length; i++)
@@ -100,18 +99,7 @@ class Game: BasicStats
                 return false;
         return true;
     }
-    public void SpawnerHooker()
-    {
-        bool toSpawn = random.Next(0, startSpawnIntervals[2]) == spawnNumber2;
-        if (FreeSpawner(hookerLngth, mSpawn.XLeftSpawn) && toSpawn)
-            Hooker.Enqueue(new Hooker());
-        IEnumerator<Hooker> enumerator = Hooker.GetEnumerator();
-        while (enumerator.MoveNext())
-        {
-            if (!enumerator.Current.isDead)
-                InitializeHooker(enumerator.Current);
-        }
-    }
+    
 
     public void AnimateBullet(Coordinates coords)
     {
@@ -261,7 +249,7 @@ class Game: BasicStats
             SpiderEnemy firstSpider = SpiderEnemies.Peek();
             int bulletCoord = YBoxRoof - BulletcounterUp + 1;
             int spiderCoord = mSpawn.YUpSpawn + firstSpider.wayCounter;
-            if (firstSpider.CheckOnHit(bulletCoord, spiderCoord))
+            if (CheckOnHit(bulletCoord, spiderCoord))
             {
                 firstSpider.GetDamaged();
                 if (firstSpider.Health <= 0)
@@ -321,101 +309,109 @@ class Game: BasicStats
 
         }
     }
+    
     public void InitializeSpider(SpiderEnemy spiderEnemy)
     {
-        bool playerUnderHit = player.CheckOnHit(mSpawn.YUpSpawn + spiderEnemy.wayCounter, YBoxRoof);
-        bool enemyUnderHit = spiderEnemy.CheckOnHit(YBoxRoof - BulletcounterUp, mSpawn.YUpSpawn + spiderEnemy.wayCounter);
-        bool spiderTurn = spiderRate % spiderEnemy.Speed == 0;
-        if (spiderEnemy.Health > 0)
-        {
-            if (playerUnderHit && spiderTurn)
-                player.GetDamaged();
-            if (enemyUnderHit)
+        if (!spiderEnemy.isDead) {
+            bool playerUnderHit = player.CheckOnHit(mSpawn.YUpSpawn + spiderEnemy.wayCounter, YBoxRoof);
+            bool enemyUnderHit = spiderEnemy.CheckOnHit(YBoxRoof - BulletcounterUp, mSpawn.YUpSpawn + spiderEnemy.wayCounter);
+            bool spiderTurn = spiderRate % spiderEnemy.Speed == 0;
+            if (spiderEnemy.Health > 0)
             {
-                spiderEnemy.GetDamaged();
-                bulletUpDestroyed = true;
+                if (playerUnderHit && spiderTurn)
+                    player.GetDamaged();
+                if (enemyUnderHit)
+                {
+                    spiderEnemy.GetDamaged();
+                    bulletUpDestroyed = true;
+                }
+                if (spiderTurn && !YcoordEngaged[spiderEnemy.EngagedYcoord + 1])
+                {
+                    spiderEnemy.AnimateEnemy();
+                    YcoordEngaged[spiderEnemy.EngagedYcoord] = true;
+                    YcoordEngaged[spiderEnemy.EngagedYcoord - 1] = false;
+                }
+                spiderRate++;
             }
-            if (spiderTurn && !YcoordEngaged[spiderEnemy.EngagedYcoord + 1])
+            else
             {
-                spiderEnemy.AnimateEnemy();
-                YcoordEngaged[spiderEnemy.EngagedYcoord] = true;
-                YcoordEngaged[spiderEnemy.EngagedYcoord - 1] = false;
-            }
-            spiderRate++;
-        }
-        else
-        {
-            SpiderDie(spiderEnemy);
-            killsCounter++;
-        }
+                SpiderDie(spiderEnemy);
+                killsCounter++;
+            } }
     }
     public void InitializeZombie(Zombie zombie)
     {
-        int XzombieCoord = mSpawn.XRightSpawn - zombie.wayCounter - 1;
-        bool playerUnderHit = player.CheckOnHit(XzombieCoord, rightBorderBox);
-        bool enemyUnderHit = zombie.CheckOnHit(rightBorderBox + BulletcounterRight, XzombieCoord);
-        bool enemyUnderHit1 = zombie.CheckOnHit(rightBorderBox + BulletcounterRight, XzombieCoord + 1);
-        bool zombieTurn = zombieRate % zombie.Speed == 0;
-        if (zombie.Health > 0)
+        if (!zombie.isDead)
         {
-            if (playerUnderHit && zombieTurn)
+            int XzombieCoord = mSpawn.XRightSpawn - zombie.wayCounter - 1;
+            bool playerUnderHit = player.CheckOnHit(XzombieCoord, rightBorderBox);
+            bool enemyUnderHit = zombie.CheckOnHit(rightBorderBox + BulletcounterRight, XzombieCoord);
+            bool enemyUnderHit1 = zombie.CheckOnHit(rightBorderBox + BulletcounterRight, XzombieCoord + 1);
+            bool zombieTurn = zombieRate % zombie.Speed == 0;
+            if (zombie.Health > 0)
             {
-                player.GetDamaged();
-            }
-            if (enemyUnderHit || enemyUnderHit1)
-            {
-                zombie.GetDamaged();
-                bulletRightDestroyed = true;
-            }
-            if (zombieTurn && !XcoordEngaged[zombie.EngagedXcoord - zombieLngth])
-            {
-                zombie.AnimateEnemy();
-                for (int i = 0; i < zombieLngth; i++)
+                if (playerUnderHit && zombieTurn)
                 {
-                    XcoordEngaged[zombie.EngagedXcoord - i] = true;
+                    player.GetDamaged();
                 }
-                XcoordEngaged[zombie.EngagedXcoord + 1] = false;
+                if (enemyUnderHit || enemyUnderHit1)
+                {
+                    zombie.GetDamaged();
+                    bulletRightDestroyed = true;
+                }
+                if (zombieTurn && !XcoordEngaged[zombie.EngagedXcoord - zombieLngth])
+                {
+                    zombie.AnimateEnemy();
+                    for (int i = 0; i < zombieLngth; i++)
+                    {
+                        XcoordEngaged[zombie.EngagedXcoord - i] = true;
+                    }
+                    XcoordEngaged[zombie.EngagedXcoord + 1] = false;
+                }
+                zombieRate++;
             }
-             zombieRate++;
-        }
-        else
-        {
-            ZombieDie(zombie);
-            killsCounter++;
+            else
+            {
+                ZombieDie(zombie);
+                killsCounter++;
+            }
         }
     }
     public void InitializeHooker(Hooker hooker)
     {
-        bool playerUnderHit = player.CheckOnHit(mSpawn.XLeftSpawn + hooker.wayCounter + entireHookerLngth, leftBorderBox);
-        bool enemyUnderHit = hooker.CheckOnHit(leftBorderBox - BulletcounterLeft, mSpawn.XLeftSpawn + hooker.wayCounter + hookerLngth);
-        bool hookerTurn = hookerRate % hooker.Speed == 0;
-        if (hooker.Health > 0)
+        if (hooker.isDead)
         {
-            if (playerUnderHit && hookerTurn)
+            bool playerUnderHit = player.CheckOnHit(mSpawn.XLeftSpawn + hooker.wayCounter + entireHookerLngth, leftBorderBox);
+            bool enemyUnderHit = hooker.CheckOnHit(leftBorderBox - BulletcounterLeft, mSpawn.XLeftSpawn + hooker.wayCounter + hookerLngth);
+            bool hookerTurn = hookerRate % hooker.Speed == 0;
+            if (hooker.Health > 0)
             {
-                player.GetDamaged();
-            }
-            if (enemyUnderHit)
-            {
-                hooker.GetDamaged();
-                bulletLeftDestroyed = true;
-            }
-            if (hookerTurn && !XcoordEngaged[hooker.EngagedXcoord + entireHookerLngth])
-            {
-                hooker.AnimateEnemy();
-                for (int i = 0; i < entireHookerLngth; i++)
+                if (playerUnderHit && hookerTurn)
                 {
-                    XcoordEngaged[hooker.EngagedXcoord + i] = true;
+                    player.GetDamaged();
                 }
-                XcoordEngaged[hooker.EngagedXcoord - 1] = false;
+                if (enemyUnderHit)
+                {
+                    hooker.GetDamaged();
+                    bulletLeftDestroyed = true;
+                }
+                if (hookerTurn && !XcoordEngaged[hooker.EngagedXcoord + entireHookerLngth])
+                {
+                    hooker.AnimateEnemy();
+                    for (int i = 0; i < entireHookerLngth; i++)
+                    {
+                        XcoordEngaged[hooker.EngagedXcoord + i] = true;
+                    }
+                    XcoordEngaged[hooker.EngagedXcoord - 1] = false;
+                }
+                hookerRate++;
             }
-            hookerRate++;
-        }
-        else
-        {
-            HookerDie(hooker);
-            
-            killsCounter++;
+            else
+            {
+                HookerDie(hooker);
+
+                killsCounter++;
+            }
         }
     }
     public void SpiderDie(SpiderEnemy spider)
