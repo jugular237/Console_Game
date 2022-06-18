@@ -171,17 +171,29 @@ class Game: BasicStats
         if (dir == Direction.Up)
         {
             DrawBulletUp(coords.xCoords[2], coords.yCoords[2], bullCounter, bullt);
-            ClearLastBulletUp(ref bullCounter, coords, ref onWay, ref skipCounter);
+            if (bullCounter == coords.yCoords[2] - 1)
+            {
+                ClearLastBullet(ref bullCounter, ref onWay, ref skipCounter);
+                CleanOrWriteBullet(coords.xCoords[2], YTopBorder, " ");
+            }
         }
         if (dir == Direction.Left)
         {
             DrawBulletLeft(coords.xCoords[0], coords.yCoords[0], bullCounter, bullt);
-            ClearLastBulletLeft(ref bullCounter, coords, ref onWay, ref skipCounter);
+            if (bullCounter == coords.xCoords[0] - 1)
+            {
+                ClearLastBullet(ref bullCounter, ref onWay, ref skipCounter);
+                CleanOrWriteBullet(XLeftBorder, coords.yCoords[0], " ");
+            }
         }
         if (dir == Direction.Right)
         {
             DrawBulletRight(coords.xCoords[1], coords.yCoords[1], bullCounter, bullt);
-            ClearLastBulletRight(ref bullCounter, coords, ref onWay, ref skipCounter);
+            if (bullCounter + coords.xCoords[1] == bulletRightRange - 1)
+            {
+                ClearLastBullet(ref bullCounter, ref onWay, ref skipCounter);
+                CleanOrWriteBullet(bulletRightRange - 1, coords.yCoords[1], " ");
+            }
         }
         if (onWay)
         {
@@ -206,37 +218,13 @@ class Game: BasicStats
         CleanOrWriteBullet(coordX + bullCounter, coordY, bullt);
         CleanOrWriteBullet(coordX - 1 + bullCounter, coordY, " ");
     }
-    public void ClearLastBulletUp(ref int bullCounter, Coordinates coords, ref bool onWay, ref int skipCounter)
+    public void ClearLastBullet(ref int bullCounter, ref bool onWay, ref int skipCounter)
     {
-        if (bullCounter == coords.yCoords[2] - 1)
-        {
-            bullCounter = 0;
-            onWay = false;
-            skipCounter = 0;
-            CleanOrWriteBullet(coords.xCoords[2], YTopBorder, " ");
-        }
+        bullCounter = 0;
+        onWay = false;
+        skipCounter = 0;
     }
-    public void ClearLastBulletLeft(ref int bullCounter, Coordinates coords, ref bool onWay, ref int skipCounter)
-    {
-        if (bullCounter == coords.xCoords[0] - 1)
-        {
-            bullCounter = 0;
-            onWay = false;
-            skipCounter = 0;
-            CleanOrWriteBullet(XLeftBorder, coords.yCoords[0], " ");
-        }
-    }
-
-    public void ClearLastBulletRight(ref int bullCounter, Coordinates coords, ref bool onWay, ref int skipCounter)
-    {
-        if (bullCounter + coords.xCoords[1] == bulletRightRange - 1)
-        {
-            bullCounter = 0;
-            onWay = false;
-            skipCounter = 0;
-            CleanOrWriteBullet(bulletRightRange - 1, coords.yCoords[1], " ");
-        }
-    }
+    
     public void CleanOrWriteBullet(int coordx, int coordy, string symb)
     {
         Console.SetCursorPosition(coordx, coordy);
@@ -312,7 +300,8 @@ class Game: BasicStats
     
     public void InitializeSpider(SpiderEnemy spiderEnemy)
     {
-        if (!spiderEnemy.isDead) {
+        if (!spiderEnemy.isDead) 
+        {
             bool playerUnderHit = player.CheckOnHit(mSpawn.YUpSpawn + spiderEnemy.wayCounter, YBoxRoof);
             bool enemyUnderHit = spiderEnemy.CheckOnHit(YBoxRoof - BulletcounterUp, mSpawn.YUpSpawn + spiderEnemy.wayCounter);
             bool spiderTurn = spiderRate % spiderEnemy.Speed == 0;
@@ -337,7 +326,8 @@ class Game: BasicStats
             {
                 SpiderDie(spiderEnemy);
                 killsCounter++;
-            } }
+            } 
+        }
     }
     public void InitializeZombie(Zombie zombie)
     {
@@ -351,9 +341,7 @@ class Game: BasicStats
             if (zombie.Health > 0)
             {
                 if (playerUnderHit && zombieTurn)
-                {
                     player.GetDamaged();
-                }
                 if (enemyUnderHit || enemyUnderHit1)
                 {
                     zombie.GetDamaged();
@@ -379,7 +367,7 @@ class Game: BasicStats
     }
     public void InitializeHooker(Hooker hooker)
     {
-        if (hooker.isDead)
+        if (!hooker.isDead)
         {
             bool playerUnderHit = player.CheckOnHit(mSpawn.XLeftSpawn + hooker.wayCounter + entireHookerLngth, leftBorderBox);
             bool enemyUnderHit = hooker.CheckOnHit(leftBorderBox - BulletcounterLeft, mSpawn.XLeftSpawn + hooker.wayCounter + hookerLngth);
@@ -409,7 +397,6 @@ class Game: BasicStats
             else
             {
                 HookerDie(hooker);
-
                 killsCounter++;
             }
         }
@@ -453,9 +440,7 @@ class Game: BasicStats
             hooker.CleanOrWriteSymbol(xhookerCoord, yhookerCoord + i, new String(' ', clearHookerLngth));
         }
         for (int i = 0; i < hookerLngth; i++)
-        {
             XcoordEngaged[hooker.EngagedXcoord + i] = false;
-        }
         hooker.isDead = true;
         if (startSpawnIntervals[2] > minSpawnIntervals[2])
             startSpawnIntervals[2] -= decHookerSpwnInterv;
