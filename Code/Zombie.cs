@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using System.IO;
 using static Constants;
 
 public class Zombie : BasicStats, IHitable
@@ -10,12 +12,12 @@ public class Zombie : BasicStats, IHitable
 
     public MonstersSpawns monstrSp;
 
+    ConfigClass conf = JsonConvert.DeserializeObject<ConfigClass>(File.ReadAllText(@"jsconfig.json"));
+
     public const int wayLength = 27;
 
-    public int EngagedXcoord = FieldSizeX;
+    public int EngagedXcoord = 95;
 
-    
-    
     public void AnimateEnemy()
     {
         if (wayCounter < wayLength)
@@ -42,7 +44,8 @@ public class Zombie : BasicStats, IHitable
             CleanOrWriteSymbol(xCoord, yCoord, space);
             yCoord++;
         }
-    } 
+    }
+    
     public async void GetDamaged()
     {
         int xCoordZombie = monstrSp.XRightSpawn - wayCounter + 1;
@@ -57,7 +60,7 @@ public class Zombie : BasicStats, IHitable
         await Task.Run(() => Health--);
         SetColor("White");
     }
-
+    
     public void DrawEnemy(int coordX, int coordY, DrawZombie drZombie)
     {
         CleanOrWriteSymbol(coordX, coordY - 1, drZombie.Head);
@@ -73,7 +76,6 @@ public class Zombie : BasicStats, IHitable
 
     public struct DrawZombie
     {
-
         public string Head { get; set; }
         public string Body { get; set; }
         public string Legs { get; set; }

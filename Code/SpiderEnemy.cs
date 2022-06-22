@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using System.IO;
 using static Constants;
+
 
 
 public class SpiderEnemy : BasicStats, IHitable
@@ -11,7 +11,6 @@ public class SpiderEnemy : BasicStats, IHitable
     public int wayCounter = 0;
     public int Speed { get; set; } = 40;
     public int Health { get; set; } = 5;
-
 
     public Direction direction = Direction.Up;
 
@@ -22,7 +21,6 @@ public class SpiderEnemy : BasicStats, IHitable
     public int EngagedYcoord = 0;
     
     
-
     public void DrawEnemy(int coordX, int coordY)
     {
         CleanOrWriteSymbol(coordX, coordY, @"/╲/\╭ºo8oº╮/\╱\");
@@ -37,7 +35,6 @@ public class SpiderEnemy : BasicStats, IHitable
             EngagedYcoord = monstrSp.YUpSpawn + wayCounter;
             if (wayCounter != wayLength-1)
                 wayCounter++;
-            
         }
     }
     public void ClearWeb(int xCoord, int yCoord, string space, int roofCoord)
@@ -48,7 +45,6 @@ public class SpiderEnemy : BasicStats, IHitable
         }
     }
     
-
     public async void GetDamaged()
     {
         int yCoordSpider = monstrSp.YUpSpawn + wayCounter - 1;
@@ -57,8 +53,5 @@ public class SpiderEnemy : BasicStats, IHitable
         await Task.Run(()=> Health--);
         SetColor("White");
     }
-
-    
-    
 
 }

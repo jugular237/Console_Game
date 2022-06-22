@@ -2,6 +2,8 @@
 using static Constants;
 using static BasicStats;
 using System.Diagnostics;
+using Newtonsoft.Json;
+using System.IO;
 
 
 namespace Console_Game
@@ -11,9 +13,9 @@ namespace Console_Game
         static Player player = Player.GetInstance();
         static ResultsMenu resMenu = new ResultsMenu();
         static Stopwatch sw = new Stopwatch();
-
         
-        static void Main(string[] args)
+
+        static void Main(string[] args) 
         {
             Console.OutputEncoding = System.Text.Encoding.Unicode;
             BeginTrial(new Game());
@@ -26,6 +28,7 @@ namespace Console_Game
             sw.Stop();
             AftermatchResults();
         }
+
         static void AftermatchResults()
         {
             Console.Clear();
@@ -36,6 +39,7 @@ namespace Console_Game
             if (key == ConsoleKey.Spacebar)
                 RestartGame();
         }
+
         static void RestartGame()
         {
             Console.Clear();
@@ -46,4 +50,6 @@ namespace Console_Game
             BeginTrial(new Game());
         }
     }
+    
+
 }

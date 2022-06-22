@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using System.IO;
 using static Constants;
+
 
 public sealed class Player:BasicStats, IHitable
 {
@@ -9,6 +12,8 @@ public sealed class Player:BasicStats, IHitable
     public int Health { get; set; } = 7;
 
     public Direction direction = Direction.None;
+
+    ConfigClass conf = JsonConvert.DeserializeObject<ConfigClass>(File.ReadAllText(@"jsconfig.json"));
 
     private static Player PlayerInstance;
     private Player()
@@ -27,10 +32,10 @@ public sealed class Player:BasicStats, IHitable
         direction = ReadMovement(direction);
         if (direction == Direction.Up)
         {
-            ClearSpace(LeftBorderPlayer, YCoord, LeftBorderBox);
+            ClearSpace(conf.LeftBorderPlayer, YCoord, conf.LeftBorderBox);
             DrawPlayer(true, new Coordinates(
-                new int[] { playerX1Up, playerX2Up, playerX3Up, playerX4Up},
-                new int[] { playerY1Up, playerY2Up, playerY3Up }), 
+                new int[] { conf.playerX1Up, conf.playerX2Up, conf.playerX3Up, conf.playerX4Up },
+                new int[] { conf.playerY1Up, conf.playerY2Up, conf.playerY3Up }), 
                     new DrawHero
                     {
                         OverHead2 = @"||",
@@ -42,10 +47,10 @@ public sealed class Player:BasicStats, IHitable
         }
         else if (direction == Direction.Left)
         {
-            ClearSpace(LeftBorderPlayer, YCoord, LeftBorderBox);
+            ClearSpace(conf.LeftBorderPlayer, YCoord, conf.LeftBorderBox);
             DrawPlayer(false, new Coordinates(
-                new int[] { playerX1Left, playerX2Left, playerX3Left },
-                new int[] { playerY1Left, playerY2Left, playerY3Left }),
+                new int[] { conf.playerX1Left, conf.playerX2Left, conf.playerX3Left },
+                new int[] { conf.playerY1Left, conf.playerY2Left, conf.playerY3Left }),
                     new DrawHero
                     {
                         Head = @"8======* (▀ ͜ʖ▀)",
@@ -55,10 +60,10 @@ public sealed class Player:BasicStats, IHitable
         }
         else if (direction == Direction.Right)
         {
-            ClearSpace(LeftBorderPlayer, YCoord, LeftBorderBox);
+            ClearSpace(conf.LeftBorderPlayer, YCoord, conf.LeftBorderBox);
             DrawPlayer(false, new Coordinates(
-                new int[] { playerX1Right, playerX2Right, playerX3Right },
-                new int[] { playerY1Right, playerY2Right, playerY3Right }), 
+                new int[] { conf.playerX1Right, conf.playerX2Right, conf.playerX3Right },
+                new int[] { conf.playerY1Right, conf.playerY2Right, conf.playerY3Right }), 
                     new DrawHero
                     {
                         Head = @"(▀ ͜ʖ▀) *======8",
@@ -123,8 +128,8 @@ public sealed class Player:BasicStats, IHitable
     {
         SetColor("Red");
         DrawBox(new Coordinates(
-            new int[] { X1Box, X2Box, X3Box, X4Box },
-            new int[] { Y1Box, Y2Box, Y3Box, Y4Box }));
+            new int[] { conf.X1Box, conf.X2Box, conf.X3Box, conf.X4Box },
+            new int[] { conf.Y1Box, conf.Y2Box, conf.Y3Box, conf.Y4Box }));
     }
     public void DrawBox(Coordinates coords)
     {
@@ -156,7 +161,6 @@ public struct DrawHero
 {
     public string OverHead1 { get; set; }
     public string OverHead2 { get; set; }
-
 
     public string Head { get; set; }
     public string BodyNGun { get; set; }

@@ -5,3 +5,6 @@ C:\Users\User\source\repos\Console_Game\obj\Debug\Console_Game.csproj.AssemblyRe
 C:\Users\User\source\repos\Console_Game\obj\Debug\Console_Game.csproj.CoreCompileInputs.cache
 C:\Users\User\source\repos\Console_Game\obj\Debug\Console_Game.exe
 C:\Users\User\source\repos\Console_Game\obj\Debug\Console_Game.pdb
+C:\Users\User\source\repos\Console_Game\bin\Debug\Newtonsoft.Json.dll
+C:\Users\User\source\repos\Console_Game\bin\Debug\Newtonsoft.Json.xml
+C:\Users\User\source\repos\Console_Game\obj\Debug\Console_Game.csproj.CopyComplete

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using Newtonsoft.Json;
+using System.IO;
 using static Constants;
+
 
 
 class Game: BasicStats
@@ -13,9 +16,17 @@ class Game: BasicStats
     private Queue<SpiderEnemy> SpiderEnemies = new Queue<SpiderEnemy>();
     private Queue<Zombie> Zombies = new Queue<Zombie>();
     private Queue<Hooker> Hooker = new Queue<Hooker>();
+    ConfigClass conf = JsonConvert.DeserializeObject<ConfigClass>(File.ReadAllText(@"jsconfig.json"));
 
-    private List<int> startSpawnIntervals = new List<int>() { 400, 400, 800 };
-    private List<int> minSpawnIntervals = new List<int>() { 120, 150, 400 };
+    private static int StartSpwnSpider { get; set; } = 400;
+    private static int StartSpwnZombie { get; set; } =  400;
+    private static int StartSpwnHooker { get; set; } = 800;
+    private static int MinSpwnSpider { get; set; } = 120;
+    private static int MinSpwnZombie { get; set; } = 150;
+    private static int MinSpwnHooker { get; set; } = 400;
+
+    private List<int> startSpawnIntervals = new List<int>() { StartSpwnSpider, StartSpwnZombie, StartSpwnHooker };
+    private List<int> minSpawnIntervals = new List<int>() { MinSpwnSpider, MinSpwnZombie, MinSpwnHooker };
 
     private Random random = new Random();
 
@@ -36,8 +47,7 @@ class Game: BasicStats
     private bool bulletOnUpWay;
     private bool bulletOnRightWay;
 
-    private int WhiteDelay = 0;
-
+    private int whiteDelay = 0;
     private int spiderRate = 0;
     private int zombieRate = 0;
     private int hookerRate = 0;
@@ -46,7 +56,6 @@ class Game: BasicStats
     private bool bulletRightDestroyed = false;
     public static int killsCounter = 0;
 
-   
     public delegate void InitializeEnemy<Enemy>(Enemy enemy);
 
     public InitializeEnemy<SpiderEnemy> spiderDelegate;
@@ -63,6 +72,7 @@ class Game: BasicStats
         while (!player.isDead)
             Update();
     }
+    
     public void Update()
     {
         GatherMethods(); 
@@ -84,23 +94,25 @@ class Game: BasicStats
     {
         bool toSpawn = random.Next(0, startSpawnIntervals[0]) == spawnNumber;
         if (toSpawn)
+        {
             enemies.Enqueue(enemyClass);
+        }
         foreach(var foe in enemies)
         {
             initialize.Invoke(foe);
         }
     }
 
-    
     public bool FreeSpawner(int length, int pozition)
     {
         for (int i = pozition; i < pozition + length; i++)
             if (XcoordEngaged[i])
+            {
                 return false;
+            }
         return true;
     }
     
-
     public void AnimateBullet(Coordinates coords)
     {
         bool checkOnLeft = player.direction == Direction.Left;
@@ -128,6 +140,7 @@ class Game: BasicStats
             BulletHitSpider();
         }
     }
+
     public void AnimateBulletUp(Coordinates coords)
     {
         var direct = Direction.Up;
@@ -136,6 +149,7 @@ class Game: BasicStats
         else if (!bulletUpDestroyed)
             BulletOnWay(ref BulletcounterUp, ref BulletSkipUpCounter, ref bulletOnUpWay, coords, "'", direct);
     }
+
     public void AnimateBulletLeft(Coordinates coords)
     {
         var direct = Direction.Left;
@@ -153,6 +167,7 @@ class Game: BasicStats
         else if (!bulletRightDestroyed)
             BulletOnWay(ref BulletcounterRight, ref BulletSkipRightCounter, ref bulletOnRightWay, coords, "-", direct);
     }
+
     public void BulletDestroyed(ref int bullCounter, ref int skipCounter, ref bool onWay,
         ref bool destroyed, int border)
     {
@@ -166,34 +181,20 @@ class Game: BasicStats
         if (onWay)
             skipCounter++;
     }
+
     public void BulletOnWay(ref int bullCounter, ref int skipCounter, ref bool onWay, Coordinates coords, string bullt, Direction dir)
     {
         if (dir == Direction.Up)
         {
-            DrawBulletUp(coords.xCoords[2], coords.yCoords[2], bullCounter, bullt);
-            if (bullCounter == coords.yCoords[2] - 1)
-            {
-                ClearLastBullet(ref bullCounter, ref onWay, ref skipCounter);
-                CleanOrWriteBullet(coords.xCoords[2], YTopBorder, " ");
-            }
+            HandleBulletUp(ref bullCounter, ref skipCounter, ref onWay, coords, bullt);
         }
         if (dir == Direction.Left)
         {
-            DrawBulletLeft(coords.xCoords[0], coords.yCoords[0], bullCounter, bullt);
-            if (bullCounter == coords.xCoords[0] - 1)
-            {
-                ClearLastBullet(ref bullCounter, ref onWay, ref skipCounter);
-                CleanOrWriteBullet(XLeftBorder, coords.yCoords[0], " ");
-            }
+            HandleBulletLeft(ref bullCounter, ref skipCounter, ref onWay, coords, bullt);
         }
         if (dir == Direction.Right)
         {
-            DrawBulletRight(coords.xCoords[1], coords.yCoords[1], bullCounter, bullt);
-            if (bullCounter + coords.xCoords[1] == bulletRightRange - 1)
-            {
-                ClearLastBullet(ref bullCounter, ref onWay, ref skipCounter);
-                CleanOrWriteBullet(bulletRightRange - 1, coords.yCoords[1], " ");
-            }
+            HandleBulletRight(ref bullCounter, ref skipCounter, ref onWay, coords, bullt);
         }
         if (onWay)
         {
@@ -202,22 +203,36 @@ class Game: BasicStats
         }
     }
 
-    public void DrawBulletUp(int coordX, int coordY, int bullCounter, string bullt)
+    private void HandleBulletUp(ref int bullCounter, ref int skipCounter, ref bool onWay, Coordinates coords, string bullt)
     {
-        CleanOrWriteBullet(coordX, coordY - bullCounter, bullt);
-        CleanOrWriteBullet(coordX, (coordY + 1) - bullCounter, " ");
-    }
-    public void DrawBulletLeft(int coordX, int coordY, int bullCounter, string bullt)
-    {
-        CleanOrWriteBullet(coordX - bullCounter, coordY, bullt);
-        CleanOrWriteBullet(coordX + 1 - bullCounter, coordY, " ");
+        DrawBulletUp(coords.xCoords[2], coords.yCoords[2], bullCounter, bullt);
+        if (bullCounter == coords.yCoords[2] - 1)
+        {
+            ClearLastBullet(ref bullCounter, ref onWay, ref skipCounter);
+            CleanOrWriteSymbol(coords.xCoords[2], conf.YTopBorder, " ");
+        }
     }
 
-    public void DrawBulletRight(int coordX, int coordY, int bullCounter, string bullt)
+    private void HandleBulletLeft(ref int bullCounter, ref int skipCounter, ref bool onWay, Coordinates coords, string bullt)
     {
-        CleanOrWriteBullet(coordX + bullCounter, coordY, bullt);
-        CleanOrWriteBullet(coordX - 1 + bullCounter, coordY, " ");
+        DrawBulletLeft(coords.xCoords[0], coords.yCoords[0], bullCounter, bullt);
+        if (bullCounter == coords.xCoords[0] - 1)
+        {
+            ClearLastBullet(ref bullCounter, ref onWay, ref skipCounter);
+            CleanOrWriteSymbol(conf.XLeftBorder, coords.yCoords[0], " ");
+        }
     }
+
+    private void HandleBulletRight(ref int bullCounter, ref int skipCounter, ref bool onWay, Coordinates coords, string bullt)
+    {
+        DrawBulletRight(coords.xCoords[1], coords.yCoords[1], bullCounter, bullt);
+        if (bullCounter + coords.xCoords[1] == bulletRightRange - 1)
+        {
+            ClearLastBullet(ref bullCounter, ref onWay, ref skipCounter);
+            CleanOrWriteSymbol(bulletRightRange - 1, coords.yCoords[1], " ");
+        }
+    }
+
     public void ClearLastBullet(ref int bullCounter, ref bool onWay, ref int skipCounter)
     {
         bullCounter = 0;
@@ -225,17 +240,14 @@ class Game: BasicStats
         skipCounter = 0;
     }
     
-    public void CleanOrWriteBullet(int coordx, int coordy, string symb)
-    {
-        Console.SetCursorPosition(coordx, coordy);
-        Console.Write(symb);
-    }
+    
+
     public void BulletHitSpider()
     {
         try
         {
             SpiderEnemy firstSpider = SpiderEnemies.Peek();
-            int bulletCoord = YBoxRoof - BulletcounterUp + 1;
+            int bulletCoord = conf.YBoxRoof - BulletcounterUp + 1;
             int spiderCoord = mSpawn.YUpSpawn + firstSpider.wayCounter;
             if (CheckOnHit(bulletCoord, spiderCoord))
             {
@@ -245,20 +257,20 @@ class Game: BasicStats
                     SpiderDie(firstSpider);
                     SpiderEnemies.Dequeue();
                 }
-
             }
         }
         catch
         {
-
+            return;
         }
     }
+
     public void BulletHitZombie()
     {
-        try 
+        try
         {
             Zombie firstZomb = Zombies.Peek();
-            int bulletCoord = rightBorderBox + BulletcounterUp - 1;
+            int bulletCoord = conf.rightBorderBox + BulletcounterUp - 1;
             int zombCoord = mSpawn.XRightSpawn - firstZomb.wayCounter;
             if (firstZomb.CheckOnHit(bulletCoord, zombCoord))
             {
@@ -267,21 +279,21 @@ class Game: BasicStats
                 {
                     ZombieDie(firstZomb);
                     Zombies.Dequeue();
-                    
                 }
             }
         }
         catch
         {
-
+            return;
         }
     }
+
     public void BulletHitHooker()
     {
-        try 
-        { 
+        try
+        {
             Hooker firsthooker = Hooker.Peek();
-            int bulletCoord = leftBorderBox - BulletcounterUp + 1;
+            int bulletCoord = conf.leftBorderBox - BulletcounterUp + 1;
             int zombCoord = mSpawn.XLeftSpawn - firsthooker.wayCounter;
             if (firsthooker.CheckOnHit(bulletCoord, zombCoord))
             {
@@ -293,8 +305,9 @@ class Game: BasicStats
                 }
             }
         }
-        catch{
-
+        catch
+        {
+            return;
         }
     }
     
@@ -302,13 +315,15 @@ class Game: BasicStats
     {
         if (!spiderEnemy.isDead) 
         {
-            bool playerUnderHit = player.CheckOnHit(mSpawn.YUpSpawn + spiderEnemy.wayCounter, YBoxRoof);
-            bool enemyUnderHit = spiderEnemy.CheckOnHit(YBoxRoof - BulletcounterUp, mSpawn.YUpSpawn + spiderEnemy.wayCounter);
+            bool playerUnderHit = player.CheckOnHit(mSpawn.YUpSpawn + spiderEnemy.wayCounter, conf.YBoxRoof);
+            bool enemyUnderHit = spiderEnemy.CheckOnHit(conf.YBoxRoof - BulletcounterUp, mSpawn.YUpSpawn + spiderEnemy.wayCounter);
             bool spiderTurn = spiderRate % spiderEnemy.Speed == 0;
             if (spiderEnemy.Health > 0)
             {
                 if (playerUnderHit && spiderTurn)
+                {
                     player.GetDamaged();
+                }
                 if (enemyUnderHit)
                 {
                     spiderEnemy.GetDamaged();
@@ -329,19 +344,22 @@ class Game: BasicStats
             } 
         }
     }
+    
     public void InitializeZombie(Zombie zombie)
     {
         if (!zombie.isDead)
         {
             int XzombieCoord = mSpawn.XRightSpawn - zombie.wayCounter - 1;
-            bool playerUnderHit = player.CheckOnHit(XzombieCoord, rightBorderBox);
-            bool enemyUnderHit = zombie.CheckOnHit(rightBorderBox + BulletcounterRight, XzombieCoord);
-            bool enemyUnderHit1 = zombie.CheckOnHit(rightBorderBox + BulletcounterRight, XzombieCoord + 1);
+            bool playerUnderHit = player.CheckOnHit(XzombieCoord, conf.rightBorderBox);
+            bool enemyUnderHit = zombie.CheckOnHit(conf.rightBorderBox + BulletcounterRight, XzombieCoord);
+            bool enemyUnderHit1 = zombie.CheckOnHit(conf.rightBorderBox + BulletcounterRight, XzombieCoord + 1);
             bool zombieTurn = zombieRate % zombie.Speed == 0;
             if (zombie.Health > 0)
             {
                 if (playerUnderHit && zombieTurn)
+                {
                     player.GetDamaged();
+                }
                 if (enemyUnderHit || enemyUnderHit1)
                 {
                     zombie.GetDamaged();
@@ -365,12 +383,13 @@ class Game: BasicStats
             }
         }
     }
+
     public void InitializeHooker(Hooker hooker)
     {
         if (!hooker.isDead)
         {
-            bool playerUnderHit = player.CheckOnHit(mSpawn.XLeftSpawn + hooker.wayCounter + entireHookerLngth, leftBorderBox);
-            bool enemyUnderHit = hooker.CheckOnHit(leftBorderBox - BulletcounterLeft, mSpawn.XLeftSpawn + hooker.wayCounter + hookerLngth);
+            bool playerUnderHit = player.CheckOnHit(mSpawn.XLeftSpawn + hooker.wayCounter + entireHookerLngth, conf.leftBorderBox);
+            bool enemyUnderHit = hooker.CheckOnHit(conf.leftBorderBox - BulletcounterLeft, mSpawn.XLeftSpawn + hooker.wayCounter + hookerLngth);
             bool hookerTurn = hookerRate % hooker.Speed == 0;
             if (hooker.Health > 0)
             {
@@ -401,15 +420,18 @@ class Game: BasicStats
             }
         }
     }
+    
     public void SpiderDie(SpiderEnemy spider)
     {
         int spiderCoord = mSpawn.YUpSpawn + spider.wayCounter - 1;
         spider.CleanOrWriteSymbol(mSpawn.XUpSpawn, spiderCoord, new String(' ', clearSpiderLngth));
-        spider.ClearWeb(mSpawn.XUpSpawn, spiderCoord, new String(' ', clearWebLngth), YBoxRoof);
+        spider.ClearWeb(mSpawn.XUpSpawn, spiderCoord, new String(' ', clearWebLngth), conf.YBoxRoof);
         YcoordEngaged[spider.EngagedYcoord] = false;
         spider.isDead = true;
         if (startSpawnIntervals[0] > minSpawnIntervals[0])
+        {
             startSpawnIntervals[0] -= decSpiderSpwnInterv;
+        }
     }
 
     public void ZombieDie(Zombie zombie)
@@ -424,12 +446,15 @@ class Game: BasicStats
         }
         zombie.isDead = true;
         if (startSpawnIntervals[1] > minSpawnIntervals[1])
+        {
             startSpawnIntervals[1] -= decZombieSpwnInterv;
+        }
     }
+
     public void HookerDie(Hooker hooker)
     {
         int xhookerCoord = mSpawn.XLeftSpawn + hooker.wayCounter-1;
-        int yhookerCoord = YBottomBorder - hookerHight;
+        int yhookerCoord = conf.YBottomBorder - hookerHight;
         for (int i = 0; i < hookerHight; i++)
         {
             if (i == hookHight)
@@ -443,7 +468,9 @@ class Game: BasicStats
             XcoordEngaged[hooker.EngagedXcoord + i] = false;
         hooker.isDead = true;
         if (startSpawnIntervals[2] > minSpawnIntervals[2])
+        {
             startSpawnIntervals[2] -= decHookerSpwnInterv;
+        }
     }
 
     public void InitializePlayer()
@@ -452,25 +479,29 @@ class Game: BasicStats
         {
             PlayerBlink();
             player.DrawBox(new Coordinates(
-                new int[] { leftBorderBox, rightBorderBox, X1roofHole, X2roofHole },
-                new int[] { bottomBorderBox, topBorderBox, Y2WallHole, Y1WallHole }));
+                new int[] { conf.leftBorderBox, conf.rightBorderBox, conf.X1roofHole, conf.X2roofHole },
+                new int[] { conf.bottomBorderBox, conf.topBorderBox, conf.Y2WallHole, conf.Y1WallHole }));
             player.DrawCreature();
             AnimateBullet(new Coordinates(
-                new int[] { XbulletLeftcoord, XbulletRightcoord, XbulletUpcoord },
-                new int[] { YbulletLeftcoord, YbulletRightcoord, YbulletUpcoord }));
+                new int[] { conf.XbulletLeftcoord, conf.XbulletRightcoord, conf.XbulletUpcoord },
+                new int[] { conf.YbulletLeftcoord, conf.YbulletRightcoord, conf.YbulletUpcoord }));
         }
         else
+        {
             player.isDead = true;
+        }
     }
+
     public void PlayerBlink()
     {
-        if (WhiteDelay == blinkRate)
+        if (whiteDelay == blinkRate)
         {
             player.SetColor("White");
-            WhiteDelay = 0;
+            whiteDelay = 0;
         }
-        WhiteDelay++;
+        whiteDelay++;
     }
+
     public void InitializeField()
     {
         Console.SetWindowSize(FieldSizeX, FieldSizeY);
@@ -490,16 +521,16 @@ class Game: BasicStats
 
     public void DrawBorders()
     {
-        for (int i = 0; i < FieldSizeY; i++)
+        for (int i = 1; i < FieldSizeY; i++)
         {
             for (int j = 0; j < FieldSizeX; j++)
             {
-                if (i == YTopBorder || i == bottomBorder)
+                if ((i == conf.YTopBorder && (j < mSpawn.XUpSpawn || j > mSpawn.XUpSpawn + spiderLngth)) || i == conf.bottomBorder)
                 {
                     Console.SetCursorPosition(j, i);
                     Console.Write('-');
                 }
-                else if (j == 0 || j == XRightBorder)
+                else if ((j == 0 || j == conf.XRightBorder)&&i < conf.YBottomBorder - hookerHight)
                 {
                     Console.SetCursorPosition(j, i);
                     Console.Write('|');
