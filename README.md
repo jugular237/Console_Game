@@ -8,8 +8,7 @@ choosing in which way to shoot. Luckily he has an infinite amount of bullets. Be
 so player should pay an attеntion to not let mosters get to close and damage his house for too long.
 Game ends by loosing anyway, so goals are to stay as long as you can and get as many kills as you can.
 
-
-![image](https://user-images.githubusercontent.com/88631922/174169716-efad363d-aa1d-4dae-a304-196ad49cd983.png)
+![image](https://user-images.githubusercontent.com/88631922/175117643-6e9955b8-4bf3-4b05-b876-3fc341573fac.png)
 
 ### Controls:
 
