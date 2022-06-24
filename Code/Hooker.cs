@@ -8,7 +8,7 @@ using static Constants;
 public class Hooker : BasicStats, IHitable
 {
     public int wayCounter = 0;
-    public int Speed { get; set; } = 40;
+    public int Speed { get; set; } = 30;
     public int Health { get; set; } = 10;
 
     public MonstersSpawns monstrSp;
