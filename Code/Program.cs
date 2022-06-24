@@ -35,7 +35,7 @@ namespace Console_Game
             Console.WriteLine("YOU LOST");
             long timeResult = sw.ElapsedMilliseconds / 1000;
             resMenu.WriteNewRecords(Game.killsCounter, timeResult);
-            ConsoleKey key = Console.ReadKey(false).Key;
+            ConsoleKey key = Console.ReadKey(true).Key;
             if (key == ConsoleKey.Spacebar)
                 RestartGame();
         }
