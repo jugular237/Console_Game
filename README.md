@@ -10,6 +10,14 @@ Game ends by loosing anyway, so goals are to stay as long as you can and get as 
 
 ![image](https://user-images.githubusercontent.com/88631922/175117643-6e9955b8-4bf3-4b05-b876-3fc341573fac.png)
 
+
+![image](https://user-images.githubusercontent.com/88631922/175615684-0eea7ea2-1581-490a-b6cd-09a498e7c3c6.png)
+
+
+![image](https://user-images.githubusercontent.com/88631922/175615715-40f94786-20de-401a-afef-98a67df2dde8.png)
+
+
+
 ### Controls:
 
 Left, rigth and top arrow, depending in what direction player want to shoot. 
